@@ -22,7 +22,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth0.getSession();
+  let session;
+  try {
+    session = await auth0.getSession();
+  } catch {
+    redirect("/auth/logout");
+  }
 
   if (!session) {
     redirect("/");
