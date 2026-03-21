@@ -21,8 +21,8 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Nav */}
       <nav className="border-b border-border px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary" />
+        <div className="flex items-center gap-2.5">
+          <img src="/logo-192.png" alt="Armada" className="h-7 w-7 rounded-md" />
           <span className="text-xl font-bold tracking-tight">Armada</span>
         </div>
         <a href="/auth/login">
@@ -35,6 +35,11 @@ export default async function Home() {
       {/* Hero */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-24">
         <div className="max-w-4xl mx-auto text-center space-y-8">
+          <img
+            src="/hero-mark.png"
+            alt="Armada Shield"
+            className="h-28 w-28 mx-auto rounded-2xl"
+          />
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-1.5 text-sm text-muted-foreground">
             <Zap className="h-3.5 w-3.5" />
             Built on Auth0 Token Vault + CIBA + Progressive Trust

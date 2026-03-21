@@ -2,7 +2,6 @@ import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  Shield,
   LayoutDashboard,
   MessageSquare,
   ScrollText,
@@ -35,8 +34,8 @@ export default async function DashboardLayout({
       <aside className="w-64 border-r border-border flex flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-border">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" />
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <img src="/logo-192.png" alt="Armada" className="h-7 w-7 rounded-md" />
             <span className="text-lg font-bold tracking-tight">Armada</span>
           </Link>
         </div>

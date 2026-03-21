@@ -2,6 +2,7 @@ import { auth0 } from "@/lib/auth0";
 import { db } from "@/lib/db/client";
 import { cibaRequests } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { sendCibaNotification } from "@/lib/firebase-admin";
 
 // GET — list pending CIBA requests for the current user
 export async function GET() {
@@ -44,6 +45,15 @@ export async function POST(req: Request) {
       expiresAt,
     })
     .returning();
+
+  // Send push notification to user's mobile device
+  sendCibaNotification(
+    session.user.sub,
+    request.id,
+    agentName,
+    action,
+    service
+  ).catch((err) => console.error("FCM notification error:", err));
 
   return Response.json(request);
 }
