@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -22,13 +24,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let session;
-  try {
-    session = await auth0.getSession();
-  } catch (e) {
-    console.error("Dashboard getSession error:", e);
-    redirect("/auth/logout");
-  }
+  const session = await auth0.getSession();
 
   if (!session) {
     redirect("/");
