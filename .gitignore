@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Flutter
+armada_mobile/.dart_tool/
+armada_mobile/.packages
+armada_mobile/.flutter-plugins
+armada_mobile/.flutter-plugins-dependencies
+armada_mobile/build/
+armada_mobile/android/.gradle/
+armada_mobile/ios/Pods/
+armada_mobile/ios/.symlinks/
+
+# IDE
+.idea/
+.vscode/
+*.iml
