@@ -46,7 +46,7 @@ export function Nav() {
           </a>
           <a
             href="/auth/login?screen_hint=signup"
-            className="inline-flex items-center justify-center h-8 px-3.5 rounded-lg text-[13px] font-medium bg-indigo-600 text-white hover:bg-indigo-500 transition-colors shadow-sm shadow-indigo-500/20"
+            className="inline-flex items-center justify-center h-8 px-3.5 rounded-lg text-[13px] font-medium bg-indigo-600 text-white hover:bg-indigo-500 active:scale-[0.97] transition-all shadow-sm shadow-indigo-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
             Get started
           </a>

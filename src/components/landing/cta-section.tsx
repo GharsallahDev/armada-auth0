@@ -41,14 +41,14 @@ export function CtaSection() {
         <div className="flex items-center justify-center gap-3">
           <a
             href="/auth/login?screen_hint=signup"
-            className="group inline-flex items-center justify-center h-10 px-5 rounded-lg text-[14px] font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
+            className="group inline-flex items-center justify-center h-10 px-5 rounded-lg text-[14px] font-medium text-white bg-indigo-600 hover:bg-indigo-500 active:scale-[0.97] transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030303]"
           >
             Get started
             <ArrowRight className="ml-2 h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
           </a>
           <a
             href="/auth/login"
-            className="inline-flex items-center justify-center h-10 px-5 rounded-lg text-[14px] font-medium text-[#c7d2fe] border border-indigo-500/20 hover:bg-indigo-500/[0.06] transition-colors"
+            className="inline-flex items-center justify-center h-10 px-5 rounded-lg text-[14px] font-medium text-[#c7d2fe] border border-indigo-500/20 hover:bg-indigo-500/[0.06] active:scale-[0.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030303]"
           >
             Sign in
           </a>
