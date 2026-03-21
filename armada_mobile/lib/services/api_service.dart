@@ -4,8 +4,7 @@ import '../models/ciba_request.dart';
 import '../models/trust_score.dart';
 
 class ApiService {
-  // Change this to your deployed Vercel URL for production
-  static const _baseUrl = 'http://10.0.2.2:3002';
+  static const _baseUrl = 'https://armada-eight.vercel.app';
 
   final String? Function() _getToken;
 
