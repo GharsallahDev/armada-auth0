@@ -65,31 +65,36 @@ export const AGENT_SERVICES: Record<AgentName, string[]> = {
 
 export const AGENT_DISPLAY: Record<
   AgentName,
-  { label: string; icon: string; description: string }
+  { label: string; icon: string; description: string; color: string }
 > = {
   orchestrator: {
     label: "Orchestrator",
     icon: "Brain",
     description: "Routes tasks and coordinates agents",
+    color: "#818cf8",
   },
   comms: {
     label: "Comms Agent",
     icon: "MessageSquare",
     description: "Gmail & Slack communications",
+    color: "#60a5fa",
   },
   scheduler: {
     label: "Scheduler Agent",
     icon: "Calendar",
     description: "Google Calendar management",
+    color: "#a78bfa",
   },
   finance: {
     label: "Finance Agent",
     icon: "DollarSign",
     description: "Stripe invoicing & payments",
+    color: "#34d399",
   },
   docs: {
     label: "Docs Agent",
     icon: "FileText",
     description: "Google Drive documents",
+    color: "#fb923c",
   },
 };

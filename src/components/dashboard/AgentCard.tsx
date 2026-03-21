@@ -9,19 +9,11 @@ import {
   FileText,
 } from "lucide-react";
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
   AGENT_DISPLAY,
   AGENT_SERVICES,
+  TRUST_LEVEL_NAMES,
   type AgentName,
+  type TrustLevel,
 } from "@/lib/trust/levels";
 import { TrustGauge } from "./TrustGauge";
 
@@ -47,6 +39,8 @@ export function AgentCard({ agentName, trust }: AgentCardProps) {
   const display = AGENT_DISPLAY[agentName];
   const services = AGENT_SERVICES[agentName];
   const IconComponent = ICON_MAP[display.icon];
+  const color = display.color;
+  const levelName = TRUST_LEVEL_NAMES[trust.level as TrustLevel] ?? "Unknown";
 
   async function handleRevoke() {
     setIsRevoking(true);
@@ -64,46 +58,79 @@ export function AgentCard({ agentName, trust }: AgentCardProps) {
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center gap-3">
+    <div
+      className="rounded-xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+      style={{
+        borderColor: `${color}18`,
+        background: `linear-gradient(135deg, ${color}06 0%, transparent 60%)`,
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        <div
+          className="flex h-9 w-9 items-center justify-center rounded-lg"
+          style={{ backgroundColor: `${color}15`, color }}
+        >
           {IconComponent && (
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-              <IconComponent className="size-5 text-foreground" />
-            </div>
+            <IconComponent className="h-4 w-4" />
           )}
-          <div className="flex-1">
-            <CardTitle>{display.label}</CardTitle>
-            <CardDescription>{display.description}</CardDescription>
-          </div>
         </div>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-[14px] font-medium text-white truncate">
+            {display.label}
+          </h3>
+          <p className="text-[11px] text-neutral-500 truncate">
+            {display.description}
+          </p>
+        </div>
+        {/* Status dot */}
+        <div className="relative flex h-2.5 w-2.5 shrink-0">
+          <span
+            className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-40"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            className="relative inline-flex h-2.5 w-2.5 rounded-full"
+            style={{ backgroundColor: color }}
+          />
+        </div>
+      </div>
+
+      {/* Trust gauge */}
+      <div className="flex justify-center mb-4">
         <TrustGauge
           score={trust.decayedScore}
           level={trust.level}
           agentName={agentName}
         />
-        {services.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {services.map((service) => (
-              <Badge key={service} variant="secondary">
-                {service}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="justify-center pb-4">
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={handleRevoke}
-          disabled={isRevoking || trust.level === 0}
-        >
-          {isRevoking ? "Revoking..." : "Revoke Trust"}
-        </Button>
-      </CardFooter>
-    </Card>
+      </div>
+
+      {/* Services */}
+      {services.length > 0 && (
+        <div className="flex flex-wrap justify-center gap-1.5 mb-4">
+          {services.map((service) => (
+            <span
+              key={service}
+              className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium"
+              style={{
+                backgroundColor: `${color}12`,
+                color: `${color}cc`,
+              }}
+            >
+              {service}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Revoke */}
+      <button
+        onClick={handleRevoke}
+        disabled={isRevoking || trust.level === 0}
+        className="w-full h-7 rounded-md text-[12px] font-medium transition-colors border border-red-500/10 text-red-400/60 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30 disabled:pointer-events-none"
+      >
+        {isRevoking ? "Revoking..." : "Revoke Trust"}
+      </button>
+    </div>
   );
 }

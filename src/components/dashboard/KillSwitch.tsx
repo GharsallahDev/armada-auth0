@@ -2,18 +2,6 @@
 
 import { useState } from "react";
 import { ShieldOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 interface KillSwitchProps {
   onRevoke: () => void;
@@ -21,7 +9,7 @@ interface KillSwitchProps {
 
 export function KillSwitch({ onRevoke }: KillSwitchProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleConfirm() {
     setIsLoading(true);
@@ -34,42 +22,39 @@ export function KillSwitch({ onRevoke }: KillSwitchProps) {
       console.error("Failed to revoke all trust:", error);
     } finally {
       setIsLoading(false);
-      setOpen(false);
+      setShowConfirm(false);
     }
   }
 
+  if (showConfirm) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-[12px] text-red-400/80">Revoke all trust?</span>
+        <button
+          onClick={handleConfirm}
+          disabled={isLoading}
+          className="h-8 px-3 rounded-lg text-[12px] font-medium bg-red-600 text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+        >
+          {isLoading ? "Revoking..." : "Confirm"}
+        </button>
+        <button
+          onClick={() => setShowConfirm(false)}
+          disabled={isLoading}
+          className="h-8 px-3 rounded-lg text-[12px] font-medium text-neutral-400 border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger
-        render={
-          <Button
-            variant="destructive"
-            className="gap-2 border border-red-600/30 bg-red-600 text-white shadow-sm hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
-          >
-            <ShieldOff className="size-4" />
-            Kill Switch
-          </Button>
-        }
-      />
-      <AlertDialogContent className="max-w-md sm:max-w-md">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Emergency Trust Revocation</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will immediately revoke ALL agent trust levels to 0. All agents
-            will lose their accumulated trust and revert to read-only access.
-            This action cannot be undone. Continue?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleConfirm}
-            disabled={isLoading}
-          >
-            {isLoading ? "Revoking All Trust..." : "Yes, Revoke All"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <button
+      onClick={() => setShowConfirm(true)}
+      className="inline-flex items-center gap-2 h-8 px-3.5 rounded-lg text-[12px] font-medium border border-red-500/20 text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+    >
+      <ShieldOff className="h-3.5 w-3.5" />
+      Kill Switch
+    </button>
   );
 }

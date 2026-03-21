@@ -1,13 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import {
   AGENT_DISPLAY,
-  TRUST_LEVEL_COLORS,
   type AgentName,
-  type TrustLevel,
 } from "@/lib/trust/levels";
 
 interface Activity {
@@ -47,13 +43,14 @@ function formatActionType(actionType: string): string {
 
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (
-    <ScrollArea className="h-[400px] w-full">
-      <div className="flex flex-col gap-1 p-1">
+    <div className="h-[400px] overflow-y-auto scrollbar-thin">
+      <div className="flex flex-col gap-1.5">
         <AnimatePresence initial={false}>
           {activities.map((activity) => {
             const agentDisplay =
               AGENT_DISPLAY[activity.agentName as AgentName];
             const agentLabel = agentDisplay?.label ?? activity.agentName;
+            const agentColor = agentDisplay?.color ?? "#818cf8";
 
             return (
               <motion.div
@@ -62,23 +59,29 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                 animate={{ opacity: 1, y: 0, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="rounded-lg border border-border bg-card p-3"
+                className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="outline" className="shrink-0">
+                      <span
+                        className="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium shrink-0"
+                        style={{
+                          backgroundColor: `${agentColor}15`,
+                          color: agentColor,
+                        }}
+                      >
                         {agentLabel}
-                      </Badge>
-                      <span className="text-sm font-medium text-foreground truncate">
+                      </span>
+                      <span className="text-[13px] font-medium text-neutral-200 truncate">
                         {formatActionType(activity.actionType)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-[11px] text-neutral-500">
                       <span>{activity.service}</span>
                       {activity.outputSummary && (
                         <>
-                          <span>-</span>
+                          <span className="text-neutral-600">·</span>
                           <span className="truncate">
                             {activity.outputSummary}
                           </span>
@@ -87,13 +90,13 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-[11px] text-neutral-600">
                       {formatRelativeTime(activity.createdAt)}
                     </span>
                     {activity.trustPointsEarned > 0 && (
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="text-[11px] font-medium text-emerald-400/80">
                         +{activity.trustPointsEarned} pts
-                      </Badge>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -102,11 +105,11 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
           })}
         </AnimatePresence>
         {activities.length === 0 && (
-          <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center py-12 text-[13px] text-neutral-600">
             No activity yet
           </div>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 }
