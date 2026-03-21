@@ -54,3 +54,4 @@ armada_mobile/ios/.symlinks/
 .idea/
 .vscode/
 *.iml
+armada_mobile/android/app/google-services.json
