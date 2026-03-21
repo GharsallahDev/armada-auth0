@@ -25,7 +25,8 @@ export default async function DashboardLayout({
   let session;
   try {
     session = await auth0.getSession();
-  } catch {
+  } catch (e) {
+    console.error("Dashboard getSession error:", e);
     redirect("/auth/logout");
   }
 
@@ -33,8 +34,8 @@ export default async function DashboardLayout({
     redirect("/");
   }
 
-  const initial = session.user.name?.[0]?.toUpperCase() || "U";
-  const displayName = session.user.name || "User";
+  const initial = session.user?.name?.[0]?.toUpperCase() || session.user?.email?.[0]?.toUpperCase() || "U";
+  const displayName = session.user?.name || session.user?.email || "User";
 
   return (
     <div className="flex h-screen bg-[#030303]">
