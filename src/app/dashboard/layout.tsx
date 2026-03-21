@@ -8,7 +8,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SidebarNav } from "@/components/dashboard/SidebarNav";
 
 const navItems = [
   { href: "/dashboard", label: "Control Center", icon: LayoutDashboard },
@@ -28,62 +28,57 @@ export default async function DashboardLayout({
     redirect("/");
   }
 
+  const initial = session.user.name?.[0]?.toUpperCase() || "U";
+  const displayName = session.user.name || "User";
+
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-[#030303]">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border flex flex-col">
+      <aside className="w-60 shrink-0 flex flex-col border-r border-white/[0.06] bg-[#0a0a0a]">
         {/* Logo */}
-        <div className="p-6 border-b border-border">
+        <div className="px-5 h-14 flex items-center gap-2.5 border-b border-white/[0.06]">
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <img src="/logo-192.png" alt="Armada" className="h-7 w-7 rounded-md" />
-            <span className="text-lg font-bold tracking-tight">Armada</span>
+            <img
+              src="/logo-192.png"
+              alt="Armada"
+              className="h-7 w-7 rounded-md"
+            />
+            <span className="text-[15px] font-semibold tracking-tight text-white">
+              Armada
+            </span>
           </Link>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        {/* Navigation */}
+        <SidebarNav items={navItems} />
 
-        {/* User */}
-        <div className="p-4 border-t border-border space-y-3">
-          <div className="flex items-center gap-3 px-3">
-            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-              {session.user.name?.[0]?.toUpperCase() || "U"}
+        {/* User section */}
+        <div className="mt-auto border-t border-white/[0.06] p-3 space-y-2">
+          <div className="flex items-center gap-2.5 px-2 py-1.5">
+            <div className="h-7 w-7 rounded-full bg-white/[0.08] flex items-center justify-center text-[11px] font-semibold text-neutral-300 shrink-0">
+              {initial}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
-                {session.user.name || "User"}
+              <p className="text-[13px] font-medium text-neutral-200 truncate leading-tight">
+                {displayName}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-[11px] text-neutral-600 truncate leading-tight mt-0.5">
                 {session.user.email}
               </p>
             </div>
           </div>
-          <a href="/auth/logout" className="block">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-2 text-muted-foreground"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
+          <a
+            href="/auth/logout"
+            className="flex items-center gap-2.5 px-4 py-1.5 text-[13px] font-medium text-neutral-600 hover:text-neutral-400 transition-colors duration-150 rounded-lg hover:bg-white/[0.03]"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Sign Out
           </a>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      {/* Main content */}
+      <main className="flex-1 overflow-auto bg-[#030303]">{children}</main>
     </div>
   );
 }

@@ -40,7 +40,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
               : "Ask Armada to help with your business..."
           }
           disabled={isLoading}
-          className="min-h-[44px] resize-none pr-2"
+          className="min-h-[44px] resize-none pr-2 bg-white/[0.03] border-white/[0.08] text-neutral-200 placeholder:text-neutral-600 focus-visible:ring-white/[0.1]"
           rows={1}
         />
       </div>

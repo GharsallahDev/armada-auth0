@@ -46,10 +46,11 @@ const trustConfig = [
 
 export default function SettingsPage() {
   return (
-    <div className="p-8 space-y-8 max-w-4xl">
+    <div className="p-8 space-y-8 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-[11px] uppercase tracking-widest text-neutral-500 mb-1">Configuration</p>
+        <h1 className="text-xl font-semibold tracking-tight text-white">Settings</h1>
+        <p className="text-[13px] text-neutral-500 mt-1">
           Manage connected accounts and agent configuration
         </p>
       </div>

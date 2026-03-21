@@ -55,10 +55,11 @@ export default function AuditPage() {
     : 0;
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 space-y-6 max-w-[1400px] mx-auto">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Audit Trail</h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-[11px] uppercase tracking-widest text-neutral-500 mb-1">Operations Log</p>
+        <h1 className="text-xl font-semibold tracking-tight text-white">Audit Trail</h1>
+        <p className="text-[13px] text-neutral-500 mt-1">
           Complete log of all agent actions and authorization events
         </p>
       </div>

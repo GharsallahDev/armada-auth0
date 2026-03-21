@@ -13,14 +13,14 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-border px-6 py-4">
+      <div className="border-b border-white/[0.06] px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Shield className="h-4 w-4 text-primary" />
+          <div className="h-8 w-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
+            <Shield className="h-4 w-4 text-neutral-400" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Armada Chat</h1>
-            <p className="text-xs text-muted-foreground">
+            <h1 className="text-[15px] font-semibold text-white tracking-tight">Armada Chat</h1>
+            <p className="text-[11px] text-neutral-500">
               Talk to your agent fleet — they&apos;ll coordinate across services
             </p>
           </div>
@@ -33,7 +33,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-white/[0.06] p-4">
         <ChatInput
           onSend={(text) => sendMessage({ text })}
           isLoading={isLoading}
