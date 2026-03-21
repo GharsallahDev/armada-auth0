@@ -49,7 +49,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
         size="icon"
         disabled={isLoading || !input.trim()}
         onClick={handleSubmit}
-        className="shrink-0"
+        className="shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white"
       >
         {isLoading ? (
           <Loader2 className="size-4 animate-spin" />

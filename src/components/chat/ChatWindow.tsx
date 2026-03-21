@@ -30,8 +30,8 @@ export function ChatWindow({ messages }: ChatWindowProps) {
     <ScrollArea className="h-full w-full">
       <div className="flex flex-col gap-4 p-4">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center gap-3 py-20 text-neutral-600">
-            <Shield className="size-10" />
+          <div className="flex flex-col items-center justify-center gap-3 py-20">
+            <Shield className="size-10 text-indigo-500/30" />
             <p className="text-sm text-neutral-500">Start a conversation with Armada</p>
           </div>
         )}
@@ -47,7 +47,7 @@ export function ChatWindow({ messages }: ChatWindowProps) {
               )}
             >
               {message.role === "assistant" && (
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-neutral-400">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
                   <Shield className="size-4" />
                 </div>
               )}
@@ -55,7 +55,7 @@ export function ChatWindow({ messages }: ChatWindowProps) {
                 className={cn(
                   "max-w-[80%] rounded-xl px-4 py-2.5 text-sm leading-relaxed",
                   message.role === "user"
-                    ? "bg-blue-600 text-white"
+                    ? "bg-indigo-600 text-white"
                     : "bg-white/[0.04] text-neutral-200 border border-white/[0.06]"
                 )}
               >

@@ -15,8 +15,8 @@ export default function ChatPage() {
       {/* Header */}
       <div className="border-b border-white/[0.06] px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
-            <Shield className="h-4 w-4 text-neutral-400" />
+          <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+            <Shield className="h-4 w-4 text-indigo-400" />
           </div>
           <div>
             <h1 className="text-[15px] font-semibold text-white tracking-tight">Armada Chat</h1>
