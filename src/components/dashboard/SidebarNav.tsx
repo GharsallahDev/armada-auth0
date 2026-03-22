@@ -3,20 +3,26 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  MessageSquare,
+  ScrollText,
+  Settings,
+} from "lucide-react";
 
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-}
+const navItems = [
+  { href: "/dashboard", label: "Control Center", icon: LayoutDashboard },
+  { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
+  { href: "/dashboard/audit", label: "Audit Trail", icon: ScrollText },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+];
 
-export function SidebarNav({ items }: { items: NavItem[] }) {
+export function SidebarNav() {
   const pathname = usePathname();
 
   return (
     <nav className="flex-1 px-3 py-4 space-y-0.5">
-      {items.map((item) => {
+      {navItems.map((item) => {
         const isActive =
           item.href === "/dashboard"
             ? pathname === "/dashboard"

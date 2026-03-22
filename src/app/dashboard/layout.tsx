@@ -3,21 +3,8 @@ export const dynamic = "force-dynamic";
 import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  ScrollText,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
-
-const navItems = [
-  { href: "/dashboard", label: "Control Center", icon: LayoutDashboard },
-  { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
-  { href: "/dashboard/audit", label: "Audit Trail", icon: ScrollText },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-];
 
 export default async function DashboardLayout({
   children,
@@ -52,7 +39,7 @@ export default async function DashboardLayout({
         </div>
 
         {/* Navigation */}
-        <SidebarNav items={navItems} />
+        <SidebarNav />
 
         {/* User section */}
         <div className="mt-auto border-t border-white/[0.06] p-3 space-y-2">
