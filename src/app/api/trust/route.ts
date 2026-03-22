@@ -1,13 +1,11 @@
-import { auth0 } from "@/lib/auth0";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { getAllTrustScores } from "@/lib/trust/engine";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function GET() {
-  const session = await auth0.getSession();
-  if (!session) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+export async function GET(req: NextRequest) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) return new Response("Unauthorized", { status: 401 });
 
-  const scores = await getAllTrustScores(session.user.sub);
+  const scores = await getAllTrustScores(user.sub);
   return NextResponse.json(scores);
 }

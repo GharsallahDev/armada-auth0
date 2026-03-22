@@ -1,10 +1,10 @@
-import { auth0 } from "@/lib/auth0";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { getAuditLogs, getAgentActivity } from "@/lib/audit/logger";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const session = await auth0.getSession();
-  if (!session) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -14,10 +14,10 @@ export async function GET(req: NextRequest) {
   const offset = parseInt(searchParams.get("offset") || "0");
 
   if (type === "activity") {
-    const activity = await getAgentActivity(session.user.sub, limit);
+    const activity = await getAgentActivity(user.sub, limit);
     return NextResponse.json(activity);
   }
 
-  const logs = await getAuditLogs(session.user.sub, limit, offset);
+  const logs = await getAuditLogs(user.sub, limit, offset);
   return NextResponse.json(logs);
 }

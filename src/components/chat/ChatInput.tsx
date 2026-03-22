@@ -1,29 +1,24 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import type { KeyboardEvent } from "react";
 import { SendHorizontal, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 interface ChatInputProps {
-  onSend: (text: string) => void;
+  value: string;
+  onChange: (value: string) => void;
   isLoading: boolean;
 }
 
-export function ChatInput({ onSend, isLoading }: ChatInputProps) {
-  const [input, setInput] = useState("");
-
-  function handleSubmit() {
-    if (input.trim() && !isLoading) {
-      onSend(input.trim());
-      setInput("");
-    }
-  }
-
+export function ChatInput({ value, onChange, isLoading }: ChatInputProps) {
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      if (value.trim() && !isLoading) {
+        // Submit the parent form
+        e.currentTarget.form?.requestSubmit();
+      }
     }
   }
 
@@ -31,12 +26,13 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
     <div className="flex items-end gap-2">
       <div className="relative flex-1">
         <Textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
+          name="prompt"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={
             isLoading
-              ? "Agent is thinking..."
+              ? "Agents are working..."
               : "Ask Armada to help with your business..."
           }
           disabled={isLoading}
@@ -45,10 +41,9 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
         />
       </div>
       <Button
-        type="button"
+        type="submit"
         size="icon"
-        disabled={isLoading || !input.trim()}
-        onClick={handleSubmit}
+        disabled={isLoading || !value.trim()}
         className="shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white"
       >
         {isLoading ? (

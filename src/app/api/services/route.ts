@@ -1,14 +1,14 @@
-import { auth0 } from "@/lib/auth0";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { connectedServices } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const session = await auth0.getSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
+export async function GET(req: NextRequest) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) return new Response("Unauthorized", { status: 401 });
 
   const services = await db
     .select({
@@ -17,7 +17,7 @@ export async function GET() {
       createdAt: connectedServices.createdAt,
     })
     .from(connectedServices)
-    .where(eq(connectedServices.userId, session.user.sub));
+    .where(eq(connectedServices.userId, user.sub));
 
   return NextResponse.json(
     services.map((s) => ({

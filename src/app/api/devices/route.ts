@@ -1,12 +1,12 @@
-import { auth0 } from "@/lib/auth0";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { deviceTokens } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
 // POST — register a device token for push notifications
 export async function POST(req: Request) {
-  const session = await auth0.getSession();
-  if (!session) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     .delete(deviceTokens)
     .where(
       and(
-        eq(deviceTokens.userId, session.user.sub),
+        eq(deviceTokens.userId, user.sub),
         eq(deviceTokens.platform, platform || "android")
       )
     );
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   const [device] = await db
     .insert(deviceTokens)
     .values({
-      userId: session.user.sub,
+      userId: user.sub,
       token,
       platform: platform || "android",
     })

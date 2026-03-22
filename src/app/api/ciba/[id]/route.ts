@@ -1,4 +1,4 @@
-import { auth0 } from "@/lib/auth0";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { cibaRequests } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -8,8 +8,8 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth0.getSession();
-  if (!session) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -26,7 +26,7 @@ export async function PATCH(
     .select()
     .from(cibaRequests)
     .where(
-      and(eq(cibaRequests.id, id), eq(cibaRequests.userId, session.user.sub))
+      and(eq(cibaRequests.id, id), eq(cibaRequests.userId, user.sub))
     );
 
   if (!request) {

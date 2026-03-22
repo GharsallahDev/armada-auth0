@@ -1,19 +1,19 @@
-import { auth0 } from "@/lib/auth0";
+import { getAuthenticatedUser } from "@/lib/auth";
 import { getTrustScore, revokeTrust } from "@/lib/trust/engine";
 import { type AgentName } from "@/lib/trust/levels";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ agent: string }> }
 ) {
-  const session = await auth0.getSession();
-  if (!session) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
   const { agent } = await params;
-  const score = await getTrustScore(session.user.sub, agent as AgentName);
+  const score = await getTrustScore(user.sub, agent as AgentName);
   return NextResponse.json(score);
 }
 
@@ -21,8 +21,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ agent: string }> }
 ) {
-  const session = await auth0.getSession();
-  if (!session) {
+  const user = await getAuthenticatedUser(req);
+  if (!user) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -30,7 +30,7 @@ export async function POST(
   const body = await req.json();
 
   if (body.action === "revoke") {
-    await revokeTrust(session.user.sub, agent as AgentName);
+    await revokeTrust(user.sub, agent as AgentName);
     return NextResponse.json({ success: true, message: `Trust revoked for ${agent}` });
   }
 

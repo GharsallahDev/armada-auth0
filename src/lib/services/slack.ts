@@ -16,7 +16,7 @@ async function slackApi(method: string, body?: Record<string, unknown>) {
 
 export async function listChannels(limit = 20) {
   const data = await slackApi("conversations.list", {
-    types: "public_channel,private_channel",
+    types: "public_channel",
     limit,
     exclude_archived: true,
   });

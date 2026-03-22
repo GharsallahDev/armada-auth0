@@ -15,7 +15,7 @@ import * as stripe from "@/lib/services/stripe";
 
 export function createOrchestratorStream(userId: string, messages: ModelMessage[]) {
   return streamText({
-    model: google("gemini-2.5-flash-preview-05-20"),
+    model: google("gemini-2.5-flash"),
     system: AGENT_SYSTEM_PROMPTS.orchestrator,
     messages,
     tools: {
