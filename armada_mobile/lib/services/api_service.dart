@@ -13,7 +13,6 @@ class ApiService {
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         if (_getToken() != null) 'Authorization': 'Bearer ${_getToken()}',
-        if (_getToken() != null) 'Cookie': 'appSession=${_getToken()}',
       };
 
   // Trust scores

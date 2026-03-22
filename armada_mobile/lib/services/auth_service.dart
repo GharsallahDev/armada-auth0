@@ -4,7 +4,7 @@ import 'package:flutter_appauth/flutter_appauth.dart';
 
 class AuthService extends ChangeNotifier {
   static const _domain = 'dev-n0xwzuzwpzw70ed0.us.auth0.com';
-  static const _clientId = 't4NGizUhrRUp4EsVmhF5Bm4fsPAAvc69';
+  static const _clientId = 'TmisLwaiWkr0O7Tb2Cw3XYG35sRyOtAd';
   static const _redirectUri = 'com.armada.armadamobile://callback';
   static const _issuer = 'https://$_domain';
 
@@ -33,6 +33,9 @@ class AuthService extends ChangeNotifier {
           _redirectUri,
           issuer: _issuer,
           scopes: ['openid', 'profile', 'email', 'offline_access'],
+          additionalParameters: {
+            'audience': 'https://api.armada-fleet.com',
+          },
         ),
       );
 
