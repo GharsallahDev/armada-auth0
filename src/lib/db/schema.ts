@@ -57,6 +57,18 @@ export const deviceTokens = pgTable("device_tokens", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const connectedServices = pgTable("connected_services", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
+  provider: text("provider").notNull(), // google | slack
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at"),
+  scopes: text("scopes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const agentActions = pgTable("agent_actions", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id").notNull(),
