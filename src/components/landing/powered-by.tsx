@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Lock, Smartphone, Fingerprint, Shield } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const features = [
   {
@@ -40,7 +41,7 @@ export function PoweredBy() {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <p className="text-[13px] font-medium text-indigo-400/50 uppercase tracking-[0.1em]">
+          <p className="text-[13px] font-medium text-primary/50 uppercase tracking-[0.1em]">
             Powered by Auth0
           </p>
         </motion.div>
@@ -54,7 +55,7 @@ export function PoweredBy() {
           {features.map((f, i) => (
             <div key={f.label} className="flex items-center">
               {i > 0 && (
-                <div className="w-px h-8 bg-white/[0.06] mx-6 hidden sm:block" />
+                <Separator orientation="vertical" className="h-8 mx-6 hidden sm:block" />
               )}
               <div className="flex items-center gap-3 py-3 px-2">
                 <div
@@ -64,10 +65,10 @@ export function PoweredBy() {
                   <f.icon className="h-3.5 w-3.5" style={{ color: f.color }} />
                 </div>
                 <div>
-                  <p className="text-[13px] font-medium text-[#d1d5db] tracking-[-0.01em]">
+                  <p className="text-[13px] font-medium text-foreground tracking-[-0.01em]">
                     {f.label}
                   </p>
-                  <p className="text-[11px] text-[#4b5563] tracking-[-0.01em]">
+                  <p className="text-[11px] text-muted-foreground tracking-[-0.01em]">
                     {f.sublabel}
                   </p>
                 </div>

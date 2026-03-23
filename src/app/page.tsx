@@ -16,7 +16,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] selection:bg-white/10">
+    <div className="min-h-screen bg-background selection:bg-primary/10">
       <Nav />
 
       <main>
@@ -29,40 +29,40 @@ export default async function Home() {
 
         {/* Divider */}
         <div className="max-w-3xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/[0.08] to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/[0.12] to-transparent" />
         </div>
 
         <HowItWorks />
 
         {/* Divider */}
         <div className="max-w-3xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/[0.08] to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/[0.12] to-transparent" />
         </div>
 
         <TrustLevels />
 
         {/* Divider */}
         <div className="max-w-3xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/[0.08] to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/[0.12] to-transparent" />
         </div>
 
         <PoweredBy />
 
         {/* Divider */}
         <div className="max-w-3xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-indigo-500/[0.08] to-transparent" />
+          <div className="h-px bg-gradient-to-r from-transparent via-primary/[0.12] to-transparent" />
         </div>
 
         <CtaSection />
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-indigo-500/[0.06] px-6 py-8 text-center">
-        <p className="text-[12px] text-[#4b5563] tracking-[-0.01em]">
+      <footer className="border-t border-border px-6 py-8 text-center">
+        <p className="text-[12px] text-muted-foreground tracking-[-0.01em]">
           Armada -- Built for the{" "}
           <a
             href="https://authorizedtoact.devpost.com"
-            className="text-indigo-400/60 hover:text-indigo-300 transition-colors underline underline-offset-2 decoration-indigo-500/20"
+            className="text-primary/60 hover:text-primary transition-colors underline underline-offset-2 decoration-primary/20"
             target="_blank"
             rel="noreferrer"
           >

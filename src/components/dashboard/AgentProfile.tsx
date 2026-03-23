@@ -4,15 +4,33 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  MessageSquare, BarChart3, Settings2, Pause, Play, Trash2,
+  MessageSquare, BarChart3, Settings2, Pause, Play, Trash2, AlertTriangle,
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
+  Clock, Zap, Shield,
 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  AlertDialog, AlertDialogTrigger, AlertDialogContent,
+  AlertDialogHeader, AlertDialogTitle, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogAction, AlertDialogCancel, AlertDialogMedia,
+} from "@/components/ui/alert-dialog";
 import { TRUST_LEVEL_NAMES, SERVICE_DISPLAY, type TrustLevel } from "@/lib/trust/levels";
 import { TrustGauge } from "./TrustGauge";
 import { AgentChat } from "./AgentChat";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
+};
+
+const LEVEL_STYLES: Record<number, string> = {
+  0: "bg-red-500/10 text-red-400 border-red-500/20",
+  1: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  2: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  3: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
 };
 
 interface AgentData {
@@ -35,8 +53,6 @@ interface AgentProfileProps {
 
 export function AgentProfile({ agent, onRefresh }: AgentProfileProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"overview" | "chat" | "performance">("overview");
-  const [showTerminate, setShowTerminate] = useState(false);
   const [isTerminating, setIsTerminating] = useState(false);
 
   const levelName = TRUST_LEVEL_NAMES[agent.trust.level as TrustLevel] || "Unknown";
@@ -58,155 +74,153 @@ export function AgentProfile({ agent, onRefresh }: AgentProfileProps) {
     onRefresh();
   }
 
-  const tabs = [
-    { id: "overview" as const, label: "Overview", icon: Settings2 },
-    { id: "chat" as const, label: "Chat", icon: MessageSquare },
-    { id: "performance" as const, label: "Performance", icon: BarChart3 },
-  ];
-
   return (
     <div>
-      {/* Hero */}
-      <div className="border-b border-white/[0.06]">
+      <div className="border-b border-border">
         <div className="px-8 py-6 max-w-[1400px]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${agent.avatarGradient} flex items-center justify-center text-xl font-bold text-white shadow-lg`}>
+              <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${agent.avatarGradient} flex items-center justify-center text-xl font-bold text-primary-foreground shadow-lg ring-1 ring-border`}>
                 {agent.name[0]}
               </div>
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-lg font-semibold text-white">{agent.name}</h1>
-                  <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ${
-                    agent.trust.level === 0 ? "bg-red-500/10 text-red-400" :
-                    agent.trust.level === 1 ? "bg-amber-500/10 text-amber-400" :
-                    agent.trust.level === 2 ? "bg-yellow-500/10 text-yellow-400" :
-                    "bg-emerald-500/10 text-emerald-400"
-                  }`}>
-                    {levelName}
-                  </span>
+                  <h1 className="text-lg font-semibold text-foreground">{agent.name}</h1>
+                  <Badge variant="outline" className={LEVEL_STYLES[agent.trust.level] || ""}>{levelName}</Badge>
+                  {agent.status === "paused" && (
+                    <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-400">Paused</Badge>
+                  )}
                 </div>
-                <p className="text-[13px] text-neutral-500">{agent.role}</p>
+                <p className="text-sm text-muted-foreground">{agent.role}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleTogglePause}
-                className="inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[12px] font-medium border border-white/[0.08] text-neutral-400 hover:text-white hover:bg-white/[0.04] transition-all"
-              >
-                {agent.status === "paused" ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+              <Button variant="outline" size="sm" onClick={handleTogglePause}>
+                {agent.status === "paused" ? <Play className="h-3.5 w-3.5 mr-1.5" /> : <Pause className="h-3.5 w-3.5 mr-1.5" />}
                 {agent.status === "paused" ? "Resume" : "Pause"}
-              </button>
-              {showTerminate ? (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleTerminate}
-                    disabled={isTerminating}
-                    className="h-8 px-3 rounded-lg text-[12px] font-medium bg-red-600 text-white hover:bg-red-500 transition-colors disabled:opacity-50"
-                  >
-                    {isTerminating ? "Terminating..." : "Confirm"}
-                  </button>
-                  <button
-                    onClick={() => setShowTerminate(false)}
-                    className="h-8 px-3 rounded-lg text-[12px] font-medium text-neutral-400 border border-white/[0.08] hover:bg-white/[0.04]"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowTerminate(true)}
-                  className="inline-flex items-center gap-2 h-8 px-3 rounded-lg text-[12px] font-medium border border-red-500/20 text-red-400/80 hover:bg-red-500/10 hover:text-red-400 transition-all"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Terminate
-                </button>
-              )}
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger render={
+                  <Button variant="destructive" size="sm">
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    Terminate
+                  </Button>
+                } />
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogMedia className="bg-destructive/10">
+                      <AlertTriangle className="text-destructive" />
+                    </AlertDialogMedia>
+                    <AlertDialogTitle>Terminate {agent.name}?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently deactivate this employee, revoke all trust points, and deny any pending approval requests. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleTerminate}
+                      disabled={isTerminating}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      {isTerminating ? "Terminating..." : "Terminate Employee"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex items-center gap-1 mt-6">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
-                  activeTab === tab.id
-                    ? "bg-white/[0.06] text-white"
-                    : "text-neutral-500 hover:text-neutral-300 hover:bg-white/[0.03]"
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
           </div>
         </div>
       </div>
 
-      {/* Tab content */}
-      <div className="px-8 py-8 max-w-[1400px]">
-        {activeTab === "overview" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Trust Gauge */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col items-center">
-                <TrustGauge score={agent.trust.decayedScore} level={agent.trust.level} agentName={agent.slug} />
+      <div className="px-8 py-6 max-w-[1400px]">
+        <Tabs defaultValue="overview">
+          <TabsList variant="line" className="mb-6">
+            <TabsTrigger value="overview"><Settings2 className="h-4 w-4 mr-1.5" />Overview</TabsTrigger>
+            <TabsTrigger value="chat"><MessageSquare className="h-4 w-4 mr-1.5" />Chat</TabsTrigger>
+            <TabsTrigger value="performance"><BarChart3 className="h-4 w-4 mr-1.5" />Performance</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-6">
+                    <TrustGauge score={agent.trust.decayedScore} level={agent.trust.level} agentName={agent.slug} />
+                  </CardContent>
+                </Card>
+                <Card className="col-span-2">
+                  <CardContent className="space-y-5">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Instructions</p>
+                      <p className="text-sm text-foreground/80 leading-relaxed">{agent.instructions}</p>
+                    </div>
+                    <Separator />
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Assigned Services</p>
+                      <div className="flex flex-wrap gap-2">
+                        {agent.services.map((s: string) => {
+                          const display = SERVICE_DISPLAY[s];
+                          const IconComp = display ? ICON_MAP[display.icon] : null;
+                          return (
+                            <Badge key={s} variant="secondary" className="gap-1.5 px-2.5 py-1">
+                              {IconComp && <IconComp className="h-3.5 w-3.5" />}
+                              {display?.label || s}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <Separator />
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center"><Clock className="h-4 w-4 text-muted-foreground" /></div>
+                        <div><p className="text-lg font-bold text-foreground tabular-nums">{daysEmployed}</p><p className="text-[11px] text-muted-foreground">Days Employed</p></div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center"><Zap className="h-4 w-4 text-muted-foreground" /></div>
+                        <div><p className="text-lg font-bold text-foreground tabular-nums">{agent.trust.score}</p><p className="text-[11px] text-muted-foreground">Trust Points</p></div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center"><Shield className="h-4 w-4 text-muted-foreground" /></div>
+                        <div><p className="text-lg font-bold text-foreground tabular-nums">L{agent.trust.level}</p><p className="text-[11px] text-muted-foreground">{levelName}</p></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
+            </motion.div>
+          </TabsContent>
 
-              {/* Info */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 space-y-4 col-span-2">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-600 mb-2">Instructions</p>
-                  <p className="text-[13px] text-neutral-300 leading-relaxed">{agent.instructions}</p>
-                </div>
-                <div className="border-t border-white/[0.06] pt-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-widest text-neutral-600 mb-2">Assigned Services</p>
-                  <div className="flex flex-wrap gap-2">
-                    {agent.services.map((s: string) => {
-                      const display = SERVICE_DISPLAY[s];
-                      const IconComp = display ? ICON_MAP[display.icon] : null;
-                      return (
-                        <span key={s} className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 px-3 py-1.5 text-[12px] font-medium">
-                          {IconComp && <IconComp className="h-3.5 w-3.5" />}
-                          {display?.label || s}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="border-t border-white/[0.06] pt-4 flex gap-6">
-                  <div>
-                    <p className="text-[20px] font-bold text-white">{daysEmployed}</p>
-                    <p className="text-[11px] text-neutral-600">Days Employed</p>
-                  </div>
-                  <div>
-                    <p className="text-[20px] font-bold text-white">{agent.trust.score}</p>
-                    <p className="text-[11px] text-neutral-600">Trust Points</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
+          <TabsContent value="chat">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Card className="overflow-hidden">
+                <AgentChat slug={agent.slug} agentName={agent.name} avatarGradient={agent.avatarGradient} />
+              </Card>
+            </motion.div>
+          </TabsContent>
 
-        {activeTab === "chat" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-              <AgentChat slug={agent.slug} agentName={agent.name} avatarGradient={agent.avatarGradient} />
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === "performance" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
-              <p className="text-[13px] text-neutral-500">Performance history and audit trail for {agent.name}.</p>
-              <p className="text-[12px] text-neutral-600 mt-2">Trust Score: {agent.trust.decayedScore}/750 — Level: {levelName}</p>
-            </div>
-          </motion.div>
-        )}
+          <TabsContent value="performance">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Card>
+                <CardHeader><CardTitle>Performance History</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-lg bg-muted/50 p-4">
+                      <p className="text-2xl font-bold text-foreground tabular-nums">{agent.trust.decayedScore}<span className="text-sm text-muted-foreground font-normal">/750</span></p>
+                      <p className="text-xs text-muted-foreground mt-1">Current Trust Score</p>
+                    </div>
+                    <div className="rounded-lg bg-muted/50 p-4">
+                      <p className="text-2xl font-bold text-foreground">{levelName}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Current Level</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Trust decays with a 7-day half-life. Consistent successful actions increase trust score. Visit the Audit Trail for complete action history.</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

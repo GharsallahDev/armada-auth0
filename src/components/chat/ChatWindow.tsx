@@ -72,11 +72,11 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
       <div className="flex flex-col gap-4 p-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
-            <Shield className="size-10 text-indigo-500/30" />
-            <p className="text-sm text-neutral-500">Start a conversation with Armada</p>
+            <Shield className="size-10 text-primary/30" />
+            <p className="text-sm text-muted-foreground">Start a conversation with Armada</p>
             <div className="flex flex-wrap gap-2 mt-2 max-w-md justify-center">
               {["Check my Stripe balance", "List my Slack channels", "What's on my calendar today?", "Show my recent emails"].map((suggestion) => (
-                <span key={suggestion} className="text-xs text-neutral-600 bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1">
+                <span key={suggestion} className="text-xs text-muted-foreground bg-muted/50 border border-border rounded-full px-3 py-1">
                   {suggestion}
                 </span>
               ))}
@@ -103,11 +103,11 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
                       return (
                         <div key={i} className="flex items-center gap-2 text-xs">
                           {isRunning ? (
-                            <Loader2 className={cn("size-3 animate-spin", label?.color || "text-neutral-500")} />
+                            <Loader2 className={cn("size-3 animate-spin", label?.color || "text-muted-foreground")} />
                           ) : (
-                            <Wrench className={cn("size-3", label?.color || "text-neutral-500")} />
+                            <Wrench className={cn("size-3", label?.color || "text-muted-foreground")} />
                           )}
-                          <span className={cn("font-medium", label?.color || "text-neutral-500")}>
+                          <span className={cn("font-medium", label?.color || "text-muted-foreground")}>
                             {label?.action || toolName}
                             {isRunning ? "..." : " ✓"}
                           </span>
@@ -127,7 +127,7 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
                   )}
                 >
                   {message.role === "assistant" && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <Shield className="size-4" />
                     </div>
                   )}
@@ -135,8 +135,8 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
                     className={cn(
                       "max-w-[80%] rounded-xl px-4 py-2.5 text-sm leading-relaxed",
                       message.role === "user"
-                        ? "bg-indigo-600 text-white"
-                        : "bg-white/[0.04] text-neutral-200 border border-white/[0.06]"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/50 text-foreground border border-border"
                     )}
                   >
                     {message.role === "assistant" ? (
@@ -149,11 +149,11 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
                           code: ({ children, className }) => {
                             const isBlock = className?.includes("language-");
                             return isBlock ? (
-                              <pre className="my-2 overflow-x-auto rounded-md bg-black/20 p-3 text-xs">
+                              <pre className="my-2 overflow-x-auto rounded-md bg-muted p-3 text-xs">
                                 <code>{children}</code>
                               </pre>
                             ) : (
-                              <code className="rounded bg-white/[0.08] px-1 py-0.5 text-xs">{children}</code>
+                              <code className="rounded bg-muted px-1 py-0.5 text-xs">{children}</code>
                             );
                           },
                           strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
@@ -174,12 +174,12 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
         {/* Thinking indicator */}
         {isLoading && messages[messages.length - 1]?.role === "user" && (
           <div className="flex gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Shield className="size-4" />
             </div>
-            <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center gap-2">
-              <Loader2 className="size-4 animate-spin text-indigo-400" />
-              <span className="text-sm text-neutral-400">Agents are thinking...</span>
+            <div className="bg-muted/50 border border-border rounded-xl px-4 py-3 flex items-center gap-2">
+              <Loader2 className="size-4 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Agents are thinking...</span>
             </div>
           </div>
         )}

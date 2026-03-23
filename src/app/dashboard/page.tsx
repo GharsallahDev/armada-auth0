@@ -3,7 +3,10 @@
 import useSWR from "swr";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { UserPlus, Users, TrendingUp, Clock, Activity } from "lucide-react";
+import { UserPlus, Users, TrendingUp, Activity, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { AgentCard } from "@/components/dashboard/AgentCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { KillSwitch } from "@/components/dashboard/KillSwitch";
@@ -33,51 +36,64 @@ export default function DashboardPage() {
     : 0;
 
   const stats = [
-    { label: "Total Employees", value: activeAgents.length, icon: Users },
-    { label: "Avg Trust Score", value: avgTrust, icon: TrendingUp },
-    { label: "Total Actions", value: activity?.length || 0, icon: Activity },
+    { label: "Total Employees", value: activeAgents.length, icon: Users, color: "text-primary" },
+    { label: "Avg Trust Score", value: avgTrust, icon: TrendingUp, color: "text-emerald-400" },
+    { label: "Total Actions", value: activity?.length || 0, icon: Activity, color: "text-amber-400" },
   ];
 
   return (
     <div className="min-h-full">
-      <div className="border-b border-white/[0.06]">
-        <div className="px-8 py-6 flex items-center justify-between max-w-[1400px]">
+      <div className="border-b border-border px-8 py-6">
+        <div className="flex items-center justify-between max-w-[1400px]">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight text-white">Workforce</h1>
-            <p className="text-[13px] text-neutral-500 mt-0.5">Manage your AI employees</p>
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">Workforce</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Manage your AI employees</p>
           </div>
-          <KillSwitch onRevoke={() => mutateTrust()} />
+          <div className="flex items-center gap-3">
+            <KillSwitch onRevoke={() => mutateTrust()} />
+            <Button size="sm" render={<Link href="/dashboard/hire" />}>
+              <UserPlus className="h-4 w-4 mr-1.5" />
+              Hire Employee
+            </Button>
+          </div>
         </div>
       </div>
 
       <div className="px-8 py-8 max-w-[1400px] space-y-8">
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-4">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5"
             >
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-                  <stat.icon className="h-4 w-4 text-indigo-400" />
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-white">{stat.value}</p>
-                  <p className="text-[11px] text-neutral-600">{stat.label}</p>
-                </div>
-              </div>
+              <Card>
+                <CardContent className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
           ))}
         </div>
 
-        {/* Agent Grid */}
         <section>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500 mb-4">Employees</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Employees</h2>
+            {activeAgents.length > 0 && (
+              <Button variant="ghost" size="xs" render={<Link href="/dashboard/hire" />}>
+                <UserPlus className="h-3 w-3 mr-1" />
+                Hire
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeAgents.map((agent, i) => (
               <motion.div
                 key={agent.slug}
@@ -91,29 +107,40 @@ export default function DashboardPage() {
                 />
               </motion.div>
             ))}
-            {/* Hire card */}
             <Link href="/dashboard/hire">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: activeAgents.length * 0.05 }}
-                className="rounded-xl border-2 border-dashed border-white/[0.08] bg-transparent p-5 flex flex-col items-center justify-center gap-3 min-h-[200px] hover:border-indigo-500/30 hover:bg-indigo-500/[0.03] transition-all cursor-pointer group"
               >
-                <div className="h-10 w-10 rounded-full bg-white/[0.04] flex items-center justify-center group-hover:bg-indigo-500/10 transition-colors">
-                  <UserPlus className="h-5 w-5 text-neutral-600 group-hover:text-indigo-400 transition-colors" />
-                </div>
-                <p className="text-[13px] font-medium text-neutral-600 group-hover:text-neutral-400 transition-colors">Hire Employee</p>
+                <Card className="border-dashed hover:border-primary/30 hover:bg-primary/[0.02] transition-all cursor-pointer group h-full">
+                  <CardContent className="flex flex-col items-center justify-center gap-3 min-h-[200px]">
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <UserPlus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Hire Employee</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             </Link>
           </div>
         </section>
 
-        <div className="border-t border-white/[0.06]" />
+        <Separator />
 
-        {/* Activity */}
         <section>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-500 mb-4">Recent Activity</h2>
-          <ActivityFeed activities={activity || []} />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Recent Activity</h2>
+            <Button variant="ghost" size="xs" render={<Link href="/dashboard/audit" />}>
+              View All
+              <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="p-0">
+              <ActivityFeed activities={activity || []} />
+            </CardContent>
+          </Card>
         </section>
       </div>
     </div>

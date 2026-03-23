@@ -38,7 +38,7 @@ export function HowItWorks() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-[13px] font-medium text-indigo-400/50 uppercase tracking-[0.1em] mb-3"
+          className="text-[13px] font-medium text-primary/50 uppercase tracking-[0.1em] mb-3"
         >
           How it works
         </motion.p>
@@ -48,7 +48,7 @@ export function HowItWorks() {
           viewport={{ once: true }}
           className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-medium tracking-[-0.03em] mb-16 leading-tight"
           style={{
-            background: "linear-gradient(to bottom, #ffffff, #c7d2fe)",
+            background: "linear-gradient(to bottom, hsl(var(--foreground)), hsl(var(--muted-foreground)))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}
@@ -97,10 +97,10 @@ export function HowItWorks() {
                   >
                     {step.number}
                   </p>
-                  <h3 className="text-[17px] font-medium text-white tracking-[-0.02em] mb-2">
+                  <h3 className="text-[17px] font-medium text-foreground tracking-[-0.02em] mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-[15px] leading-relaxed text-[#7a7e91] tracking-[-0.01em]">
+                  <p className="text-[15px] leading-relaxed text-muted-foreground tracking-[-0.01em]">
                     {step.description}
                   </p>
                 </motion.div>

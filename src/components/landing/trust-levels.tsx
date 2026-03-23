@@ -1,6 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const levels = [
   {
@@ -45,7 +48,7 @@ export function TrustLevels() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-[13px] font-medium text-indigo-400/50 uppercase tracking-[0.1em] mb-3"
+          className="text-[13px] font-medium text-primary/50 uppercase tracking-[0.1em] mb-3"
         >
           Trust levels
         </motion.p>
@@ -55,7 +58,7 @@ export function TrustLevels() {
           viewport={{ once: true }}
           className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-medium tracking-[-0.03em] mb-16 leading-tight"
           style={{
-            background: "linear-gradient(to bottom, #ffffff, #c7d2fe)",
+            background: "linear-gradient(to bottom, hsl(var(--foreground)), hsl(var(--muted-foreground)))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}
@@ -71,59 +74,58 @@ export function TrustLevels() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08, duration: 0.4 }}
-              className="group relative rounded-xl p-5 transition-colors duration-300"
-              style={{
-                backgroundColor: `${level.color}06`,
-                border: `1px solid ${level.color}12`,
-              }}
             >
-              <div className="flex items-start gap-5">
-                {/* Level indicator */}
-                <div className="shrink-0">
-                  <span
-                    className="text-[20px] font-mono font-bold"
-                    style={{ color: `${level.color}90` }}
-                  >
-                    {level.level}
-                  </span>
-                </div>
+              <Card className="transition-colors duration-300" style={{
+                backgroundColor: `${level.color}06`,
+                borderColor: `${level.color}20`,
+              }}>
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-5">
+                    {/* Level indicator */}
+                    <div className="shrink-0">
+                      <Badge variant="outline" className="text-[20px] font-mono font-bold px-2 py-1 h-auto" style={{ color: `${level.color}90`, borderColor: `${level.color}30` }}>
+                        {level.level}
+                      </Badge>
+                    </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-3 mb-1.5">
-                    <h3 className="text-[15px] font-medium text-white tracking-[-0.01em]">
-                      {level.name}
-                    </h3>
-                    <span
-                      className="text-[11px] font-mono shrink-0"
-                      style={{ color: `${level.color}70` }}
-                    >
-                      {level.points}
-                    </span>
-                  </div>
-                  <p className="text-[13px] text-[#6b7280] mb-3 tracking-[-0.01em]">
-                    {level.description}
-                  </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                        <h3 className="text-[15px] font-medium text-foreground tracking-[-0.01em]">
+                          {level.name}
+                        </h3>
+                        <span
+                          className="text-[11px] font-mono shrink-0"
+                          style={{ color: `${level.color}70` }}
+                        >
+                          {level.points}
+                        </span>
+                      </div>
+                      <p className="text-[13px] text-muted-foreground mb-3 tracking-[-0.01em]">
+                        {level.description}
+                      </p>
 
-                  {/* Progress bar */}
-                  <div
-                    className="h-1 rounded-full overflow-hidden"
-                    style={{ backgroundColor: `${level.color}10` }}
-                  >
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: level.barWidth }}
-                      viewport={{ once: true }}
-                      transition={{
-                        delay: 0.3 + i * 0.1,
-                        duration: 0.8,
-                        ease: "easeOut",
-                      }}
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: level.color, opacity: 0.6 }}
-                    />
+                      {/* Progress bar */}
+                      <div
+                        className="h-1 rounded-full overflow-hidden"
+                        style={{ backgroundColor: `${level.color}10` }}
+                      >
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: level.barWidth }}
+                          viewport={{ once: true }}
+                          transition={{
+                            delay: 0.3 + i * 0.1,
+                            duration: 0.8,
+                            ease: "easeOut",
+                          }}
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: level.color, opacity: 0.6 }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </motion.div>
           ))}
         </div>
@@ -134,13 +136,13 @@ export function TrustLevels() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="mt-8 text-center"
+          className="mt-8 flex items-center justify-center gap-4"
         >
-          <p className="text-[13px] text-[#4b5563] tracking-[-0.01em] inline-flex items-center gap-2">
-            <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#4b5563]/30" />
+          <Separator className="w-8" />
+          <p className="text-[13px] text-muted-foreground tracking-[-0.01em]">
             Trust decays with a 7-day half-life
-            <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#4b5563]/30" />
           </p>
+          <Separator className="w-8" />
         </motion.div>
       </div>
     </section>
