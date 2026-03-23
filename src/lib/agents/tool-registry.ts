@@ -10,6 +10,8 @@ import * as calendar from "@/lib/services/calendar";
 import * as drive from "@/lib/services/drive";
 import * as slack from "@/lib/services/slack";
 import * as stripe from "@/lib/services/stripe";
+import * as github from "@/lib/services/github";
+import * as discord from "@/lib/services/discord";
 
 export type ServiceName = "gmail" | "calendar" | "drive" | "slack" | "stripe" | "github" | "discord";
 
@@ -207,14 +209,84 @@ function stripeTools(userId: string, agentSlug: string) {
   };
 }
 
+function githubTools(userId: string, agentSlug: string) {
+  return {
+    github_list_repos: tool({
+      description: "List GitHub repositories",
+      parameters: z.object({ limit: z.number().optional().default(10) }),
+      execute: withTrustCheck(userId, agentSlug, "github", "read", "github_list_repos",
+        async (params) => github.listRepos(userId, params.limit)),
+    }),
+    github_list_issues: tool({
+      description: "List open issues in a GitHub repository",
+      parameters: z.object({ repo: z.string().describe("Full repo name like owner/repo"), limit: z.number().optional().default(10) }),
+      execute: withTrustCheck(userId, agentSlug, "github", "read", "github_list_issues",
+        async (params) => github.listIssues(userId, params.repo, params.limit)),
+    }),
+    github_read_issue: tool({
+      description: "Read details of a specific GitHub issue",
+      parameters: z.object({ repo: z.string(), issueNumber: z.number() }),
+      execute: withTrustCheck(userId, agentSlug, "github", "read", "github_read_issue",
+        async (params) => github.readIssue(userId, params.repo, params.issueNumber)),
+    }),
+    github_create_issue: tool({
+      description: "Create a new GitHub issue",
+      parameters: z.object({ repo: z.string(), title: z.string(), body: z.string(), labels: z.array(z.string()).optional() }),
+      execute: withTrustCheck(userId, agentSlug, "github", "execute", "github_create_issue",
+        async (params) => github.createIssue(userId, params.repo, params.title, params.body, params.labels)),
+    }),
+    github_create_comment: tool({
+      description: "Comment on a GitHub issue or PR",
+      parameters: z.object({ repo: z.string(), issueNumber: z.number(), body: z.string() }),
+      execute: withTrustCheck(userId, agentSlug, "github", "execute", "github_create_comment",
+        async (params) => github.createComment(userId, params.repo, params.issueNumber, params.body)),
+    }),
+    github_list_prs: tool({
+      description: "List open pull requests in a GitHub repository",
+      parameters: z.object({ repo: z.string(), limit: z.number().optional().default(10) }),
+      execute: withTrustCheck(userId, agentSlug, "github", "read", "github_list_prs",
+        async (params) => github.listPRs(userId, params.repo, params.limit)),
+    }),
+  };
+}
+
+function discordTools(userId: string, agentSlug: string) {
+  return {
+    discord_list_servers: tool({
+      description: "List Discord servers the user is in",
+      parameters: z.object({}),
+      execute: withTrustCheck(userId, agentSlug, "discord", "read", "discord_list_servers",
+        async () => discord.listServers(userId)),
+    }),
+    discord_list_channels: tool({
+      description: "List text channels in a Discord server",
+      parameters: z.object({ serverId: z.string() }),
+      execute: withTrustCheck(userId, agentSlug, "discord", "read", "discord_list_channels",
+        async (params) => discord.listChannels(userId, params.serverId)),
+    }),
+    discord_read_messages: tool({
+      description: "Read recent messages from a Discord channel",
+      parameters: z.object({ channelId: z.string(), limit: z.number().optional().default(20) }),
+      execute: withTrustCheck(userId, agentSlug, "discord", "read", "discord_read_messages",
+        async (params) => discord.readMessages(userId, params.channelId, params.limit)),
+    }),
+    discord_send_message: tool({
+      description: "Send a message to a Discord channel",
+      parameters: z.object({ channelId: z.string(), content: z.string() }),
+      execute: withTrustCheck(userId, agentSlug, "discord", "execute", "discord_send_message",
+        async (params) => discord.sendMessage(userId, params.channelId, params.content)),
+    }),
+  };
+}
+
 const SERVICE_TOOL_FACTORIES: Record<ServiceName, (userId: string, agentSlug: string) => Record<string, any>> = {
   gmail: gmailTools,
   calendar: calendarTools,
   drive: driveTools,
   slack: slackTools,
   stripe: stripeTools,
-  github: () => ({}), // Placeholder — Task 4
-  discord: () => ({}), // Placeholder — Task 4
+  github: githubTools,
+  discord: discordTools,
 };
 
 export function buildAgentTools(userId: string, agentSlug: string, services: ServiceName[]): Record<string, any> {
@@ -251,6 +323,16 @@ export function getToolDisplayMap(services: ServiceName[]): Record<string, { ser
     stripe_list_invoices: { service: "stripe", label: "Listing invoices" },
     stripe_create_invoice: { service: "stripe", label: "Creating invoice" },
     stripe_send_invoice: { service: "stripe", label: "Sending invoice" },
+    github_list_repos: { service: "github", label: "Listing repos" },
+    github_list_issues: { service: "github", label: "Listing issues" },
+    github_read_issue: { service: "github", label: "Reading issue" },
+    github_create_issue: { service: "github", label: "Creating issue" },
+    github_create_comment: { service: "github", label: "Commenting" },
+    github_list_prs: { service: "github", label: "Listing PRs" },
+    discord_list_servers: { service: "discord", label: "Listing servers" },
+    discord_list_channels: { service: "discord", label: "Listing channels" },
+    discord_read_messages: { service: "discord", label: "Reading messages" },
+    discord_send_message: { service: "discord", label: "Sending message" },
   };
   for (const [name, meta] of Object.entries(toolMeta)) {
     if (services.includes(meta.service as ServiceName)) {
