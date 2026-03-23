@@ -30,7 +30,7 @@ export async function createAgentStream(
   // CIBA tool
   agentTools.create_ciba_request = tool({
     description: "Request manager approval for a sensitive action via mobile push notification",
-    parameters: z.object({
+    inputSchema: z.object({
       action: z.string().describe("The action requiring approval"),
       details: z.string().describe("Details about what will happen"),
       service: z.string().describe("The service involved"),

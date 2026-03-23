@@ -1,7 +1,8 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useState, useRef, useEffect, type KeyboardEvent } from "react";
+import { DefaultChatTransport } from "ai";
+import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from "react";
 import { SendHorizontal, Loader2, Bot, User } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -12,9 +13,11 @@ interface AgentChatProps {
 }
 
 export function AgentChat({ slug, agentName, avatarGradient }: AgentChatProps) {
-  const { messages, sendMessage, status } = useChat({
-    api: `/api/chat/${slug}`,
-  });
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: `/api/chat/${slug}` }),
+    [slug],
+  );
+  const { messages, sendMessage, status } = useChat({ transport });
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const isLoading = status === "submitted" || status === "streaming";
@@ -77,11 +80,11 @@ export function AgentChat({ slug, agentName, avatarGradient }: AgentChatProps) {
               }`}>
                 {message.parts?.map((part, i) => {
                   if (part.type === "text") return <span key={i}>{part.text}</span>;
-                  if (part.type === "tool-invocation") {
+                  if (part.type.startsWith("tool-")) {
                     return (
                       <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[11px] font-medium my-1">
                         <Bot className="h-3 w-3" />
-                        {part.toolInvocation.toolName.replace(/_/g, " ")}
+                        {part.type.replace(/^tool-/, "").replace(/_/g, " ")}
                       </span>
                     );
                   }
