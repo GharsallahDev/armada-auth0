@@ -13,6 +13,8 @@ import {
   CheckCircle,
   Circle,
   ExternalLink,
+  Github,
+  MessageCircle,
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -42,12 +44,28 @@ const serviceConfig = [
     scopes: ["read_write"],
     alwaysConnected: true, // API key based
   },
+  {
+    provider: "github",
+    name: "GitHub",
+    icon: Github,
+    connectUrl: "/api/auth/github",
+    scopes: ["repo", "read:user"],
+    alwaysConnected: false,
+  },
+  {
+    provider: "discord",
+    name: "Discord",
+    icon: MessageCircle,
+    connectUrl: "/api/auth/discord",
+    scopes: ["identify", "guilds", "messages.read"],
+    alwaysConnected: false,
+  },
 ];
 
 const trustConfig = [
-  { label: "Level 0 → Level 1 (Draft)", threshold: "100 points" },
-  { label: "Level 1 → Level 2 (Execute)", threshold: "300 points" },
-  { label: "Level 2 → Level 3 (Autonomous)", threshold: "750 points" },
+  { label: "L0 Probationary → L1 Junior", threshold: "100 points" },
+  { label: "L1 Junior → L2 Senior", threshold: "300 points" },
+  { label: "L2 Senior → L3 Executive", threshold: "750 points" },
   { label: "Trust Decay Half-Life", threshold: "7 days" },
   { label: "CIBA Approval Timeout", threshold: "5 minutes" },
 ];

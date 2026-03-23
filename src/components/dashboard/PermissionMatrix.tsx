@@ -1,28 +1,15 @@
 "use client";
 
+import useSWR from "swr";
 import { Lock, Eye, Pencil, Play, Zap } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import {
-  AGENT_DISPLAY,
-  AGENT_SERVICES,
-  TRUST_LEVEL_COLORS,
-  type AgentName,
-  type TrustLevel,
-} from "@/lib/trust/levels";
+import { TRUST_LEVEL_COLORS, SERVICE_DISPLAY, type TrustLevel } from "@/lib/trust/levels";
 
-const SERVICES = ["gmail", "calendar", "stripe", "slack", "drive"] as const;
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-const PERMISSION_ICONS: Record<
-  number,
-  { icon: React.ComponentType<{ className?: string }>; label: string }
-> = {
+const PERMISSION_ICONS: Record<number, { icon: React.ComponentType<{ className?: string }>; label: string }> = {
   0: { icon: Lock, label: "No Access" },
   1: { icon: Eye, label: "Read" },
   2: { icon: Pencil, label: "Draft" },
@@ -30,82 +17,51 @@ const PERMISSION_ICONS: Record<
   4: { icon: Zap, label: "Autonomous" },
 };
 
-const AGENTS: AgentName[] = [
-  "orchestrator",
-  "comms",
-  "scheduler",
-  "finance",
-  "docs",
-];
+export function PermissionMatrix() {
+  const { data: agents } = useSWR<any[]>("/api/agents", fetcher);
+  const { data: trustData } = useSWR<Record<string, { level: number }>>("/api/trust", fetcher);
 
-interface PermissionMatrixProps {
-  agentTrustLevels: Record<AgentName, number>;
-}
+  const activeAgents = agents?.filter((a) => a.status === "active") || [];
+  const allServices = [...new Set(activeAgents.flatMap((a) => a.services as string[]))];
 
-function getPermissionLevel(
-  agentName: AgentName,
-  service: string,
-  trustLevel: number
-): number {
-  const agentServices = AGENT_SERVICES[agentName];
-  if (!agentServices.includes(service)) return 0;
-  // Map trust level to permission: 0->1(read), 1->2(draft), 2->3(execute), 3->4(autonomous)
-  return trustLevel + 1;
-}
-
-export function PermissionMatrix({ agentTrustLevels }: PermissionMatrixProps) {
   return (
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[160px]">Agent</TableHead>
-            {SERVICES.map((service) => (
-              <TableHead key={service} className="text-center capitalize">
-                {service}
+            <TableHead className="w-[160px]">Employee</TableHead>
+            {allServices.map((service) => (
+              <TableHead key={service} className="text-center">
+                {SERVICE_DISPLAY[service]?.label || service}
               </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {AGENTS.map((agentName) => {
-            const trustLevel = agentTrustLevels[agentName] ?? 0;
-            const color =
-              TRUST_LEVEL_COLORS[trustLevel as TrustLevel] ?? "#ef4444";
+          {activeAgents.map((agent) => {
+            const trustLevel = trustData?.[agent.slug]?.level ?? 0;
+            const color = TRUST_LEVEL_COLORS[trustLevel as TrustLevel] ?? "#ef4444";
 
             return (
-              <TableRow key={agentName}>
-                <TableCell className="font-medium">
-                  {AGENT_DISPLAY[agentName].label}
-                </TableCell>
-                {SERVICES.map((service) => {
-                  const permLevel = getPermissionLevel(
-                    agentName,
-                    service,
-                    trustLevel
-                  );
+              <TableRow key={agent.slug}>
+                <TableCell className="font-medium text-neutral-300">{agent.name}</TableCell>
+                {allServices.map((service) => {
+                  const hasService = (agent.services as string[]).includes(service);
+                  const permLevel = hasService ? trustLevel + 1 : 0;
                   const perm = PERMISSION_ICONS[permLevel] ?? PERMISSION_ICONS[0];
                   const IconComp = perm.icon;
-                  const isConnected =
-                    AGENT_SERVICES[agentName].includes(service);
 
                   return (
                     <TableCell key={service} className="text-center">
                       <div
                         className="mx-auto flex h-8 w-8 items-center justify-center rounded-md"
                         style={{
-                          backgroundColor: isConnected
-                            ? `${color}18`
-                            : undefined,
-                          color: isConnected ? color : undefined,
+                          backgroundColor: hasService ? `${color}18` : undefined,
+                          color: hasService ? color : undefined,
                         }}
                         title={perm.label}
                       >
-                        <IconComp
-                          className={`size-4 ${
-                            !isConnected ? "text-muted-foreground/40" : ""
-                          }`}
-                        />
+                        <IconComp className={`size-4 ${!hasService ? "text-muted-foreground/40" : ""}`} />
                       </div>
                     </TableCell>
                   );

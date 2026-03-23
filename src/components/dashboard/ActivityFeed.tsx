@@ -1,10 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  AGENT_DISPLAY,
-  type AgentName,
-} from "@/lib/trust/levels";
+import { AGENT_COLOR_PALETTE } from "@/lib/trust/levels";
 
 interface Activity {
   id: string;
@@ -47,10 +44,8 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
       <div className="flex flex-col gap-1.5">
         <AnimatePresence initial={false}>
           {activities.map((activity) => {
-            const agentDisplay =
-              AGENT_DISPLAY[activity.agentName as AgentName];
-            const agentLabel = agentDisplay?.label ?? activity.agentName;
-            const agentColor = agentDisplay?.color ?? "#818cf8";
+            const agentLabel = activity.agentName;
+            const agentColor = "#818cf8"; // default indigo
 
             return (
               <motion.div
