@@ -26,30 +26,38 @@ function getToolCalls(message: UIMessage) {
   );
 }
 
-const TOOL_LABELS: Record<string, { agent: string; action: string; color: string }> = {
-  check_all_trust_levels: { agent: "Orchestrator", action: "Checking trust levels", color: "text-indigo-400" },
-  check_action_permission: { agent: "Orchestrator", action: "Checking permissions", color: "text-indigo-400" },
-  gmail_list_emails: { agent: "Comms", action: "Reading inbox", color: "text-blue-400" },
-  gmail_read_email: { agent: "Comms", action: "Reading email", color: "text-blue-400" },
-  gmail_draft_email: { agent: "Comms", action: "Drafting email", color: "text-blue-400" },
-  gmail_send_email: { agent: "Comms", action: "Sending email", color: "text-blue-400" },
-  slack_list_channels: { agent: "Comms", action: "Listing Slack channels", color: "text-blue-400" },
-  slack_read_messages: { agent: "Comms", action: "Reading Slack messages", color: "text-blue-400" },
-  slack_send_message: { agent: "Comms", action: "Sending Slack message", color: "text-blue-400" },
-  calendar_list_events: { agent: "Scheduler", action: "Checking calendar", color: "text-purple-400" },
-  calendar_check_availability: { agent: "Scheduler", action: "Checking availability", color: "text-purple-400" },
-  calendar_create_event: { agent: "Scheduler", action: "Creating event", color: "text-purple-400" },
-  stripe_get_balance: { agent: "Finance", action: "Checking balance", color: "text-green-400" },
-  stripe_list_payments: { agent: "Finance", action: "Listing payments", color: "text-green-400" },
-  stripe_list_customers: { agent: "Finance", action: "Listing customers", color: "text-green-400" },
-  stripe_list_invoices: { agent: "Finance", action: "Listing invoices", color: "text-green-400" },
-  stripe_create_invoice: { agent: "Finance", action: "Creating invoice", color: "text-green-400" },
-  stripe_send_invoice: { agent: "Finance", action: "Sending invoice", color: "text-green-400" },
-  drive_list_files: { agent: "Docs", action: "Listing files", color: "text-orange-400" },
-  drive_read_document: { agent: "Docs", action: "Reading document", color: "text-orange-400" },
-  drive_create_document: { agent: "Docs", action: "Creating document", color: "text-orange-400" },
-  drive_share_document: { agent: "Docs", action: "Sharing document", color: "text-orange-400" },
-  create_ciba_request: { agent: "CIBA", action: "Requesting approval", color: "text-amber-400" },
+const TOOL_LABELS: Record<string, { action: string; color: string }> = {
+  gmail_list_emails: { action: "Reading inbox", color: "text-blue-400" },
+  gmail_read_email: { action: "Reading email", color: "text-blue-400" },
+  gmail_draft_email: { action: "Drafting email", color: "text-blue-400" },
+  gmail_send_email: { action: "Sending email", color: "text-blue-400" },
+  slack_list_channels: { action: "Listing channels", color: "text-blue-400" },
+  slack_read_messages: { action: "Reading messages", color: "text-blue-400" },
+  slack_send_message: { action: "Sending message", color: "text-blue-400" },
+  calendar_list_events: { action: "Checking calendar", color: "text-purple-400" },
+  calendar_check_availability: { action: "Checking availability", color: "text-purple-400" },
+  calendar_create_event: { action: "Creating event", color: "text-purple-400" },
+  stripe_get_balance: { action: "Checking balance", color: "text-green-400" },
+  stripe_list_payments: { action: "Listing payments", color: "text-green-400" },
+  stripe_list_customers: { action: "Listing customers", color: "text-green-400" },
+  stripe_list_invoices: { action: "Listing invoices", color: "text-green-400" },
+  stripe_create_invoice: { action: "Creating invoice", color: "text-green-400" },
+  stripe_send_invoice: { action: "Sending invoice", color: "text-green-400" },
+  drive_list_files: { action: "Listing files", color: "text-orange-400" },
+  drive_read_document: { action: "Reading document", color: "text-orange-400" },
+  drive_create_document: { action: "Creating document", color: "text-orange-400" },
+  drive_share_document: { action: "Sharing document", color: "text-orange-400" },
+  github_list_repos: { action: "Listing repos", color: "text-neutral-400" },
+  github_list_issues: { action: "Listing issues", color: "text-neutral-400" },
+  github_read_issue: { action: "Reading issue", color: "text-neutral-400" },
+  github_create_issue: { action: "Creating issue", color: "text-neutral-400" },
+  github_create_comment: { action: "Commenting", color: "text-neutral-400" },
+  github_list_prs: { action: "Listing PRs", color: "text-neutral-400" },
+  discord_list_servers: { action: "Listing servers", color: "text-violet-400" },
+  discord_list_channels: { action: "Listing channels", color: "text-violet-400" },
+  discord_read_messages: { action: "Reading messages", color: "text-violet-400" },
+  discord_send_message: { action: "Sending message", color: "text-violet-400" },
+  create_ciba_request: { action: "Requesting approval", color: "text-amber-400" },
 };
 
 export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
@@ -100,9 +108,6 @@ export function ChatWindow({ messages, isLoading }: ChatWindowProps) {
                             <Wrench className={cn("size-3", label?.color || "text-neutral-500")} />
                           )}
                           <span className={cn("font-medium", label?.color || "text-neutral-500")}>
-                            {label?.agent || "Agent"}
-                          </span>
-                          <span className="text-neutral-600">
                             {label?.action || toolName}
                             {isRunning ? "..." : " ✓"}
                           </span>

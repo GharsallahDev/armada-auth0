@@ -31,13 +31,20 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-const agentColors: Record<string, string> = {
-  comms: "bg-blue-500/10 text-blue-500",
-  scheduler: "bg-purple-500/10 text-purple-500",
-  finance: "bg-green-500/10 text-green-500",
-  docs: "bg-orange-500/10 text-orange-500",
-  orchestrator: "bg-pink-500/10 text-pink-500",
-};
+const AGENT_BADGE_COLORS = [
+  "bg-indigo-500/10 text-indigo-400",
+  "bg-cyan-500/10 text-cyan-400",
+  "bg-emerald-500/10 text-emerald-400",
+  "bg-amber-500/10 text-amber-400",
+  "bg-rose-500/10 text-rose-400",
+  "bg-violet-500/10 text-violet-400",
+];
+
+function getAgentColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AGENT_BADGE_COLORS[Math.abs(hash) % AGENT_BADGE_COLORS.length];
+}
 
 export default function AuditPage() {
   const { data: logs } = useSWR("/api/audit?limit=100", fetcher, {
@@ -139,7 +146,7 @@ export default function AuditPage() {
                       <TableCell>
                         <Badge
                           variant="secondary"
-                          className={agentColors[log.agentName] || ""}
+                          className={getAgentColor(log.agentName)}
                         >
                           {log.agentName}
                         </Badge>
@@ -187,7 +194,7 @@ export default function AuditPage() {
                       colSpan={8}
                       className="text-center py-12 text-muted-foreground"
                     >
-                      No agent actions yet. Start a conversation in Chat to see
+                      No agent actions yet. Chat with an employee to see
                       the audit trail populate.
                     </TableCell>
                   </TableRow>

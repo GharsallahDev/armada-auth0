@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_BASE_URL || "https://armada-eight.vercel.app"),
-  title: "Armada — Orchestrated AI Agents with Progressive Trust",
+  title: "Armada — AI Workforce Manager with Progressive Trust",
   description:
-    "A fleet of AI agents managing your business operations — each authorized, audited, and accountable. Built on Auth0 Token Vault.",
+    "Hire AI employees, connect them to your services, and govern them with Progressive Trust. Built on Auth0 Token Vault.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Armada — AI Agent Fleet Command",
+    title: "Armada — AI Workforce Manager",
     description:
-      "Progressive Trust meets Auth0 for AI Agents. A multi-agent orchestrator where AI earns your trust through demonstrated reliability.",
+      "Hire AI employees. Give them tools. Watch them earn your trust. Progressive Trust meets Auth0 for AI Agents.",
     images: [{ url: "/og-image.png", width: 1536, height: 1024 }],
   },
 };
