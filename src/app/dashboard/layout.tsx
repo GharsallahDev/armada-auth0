@@ -32,9 +32,14 @@ export default async function DashboardLayout({
               alt="Armada"
               className="h-7 w-7 rounded-md"
             />
-            <span className="text-[15px] font-semibold tracking-tight text-white">
-              Armada
-            </span>
+            <div>
+              <span className="text-[15px] font-semibold tracking-tight text-white">
+                Armada
+              </span>
+              <span className="text-[10px] text-neutral-600 block -mt-0.5">
+                AI Workforce Manager
+              </span>
+            </div>
           </Link>
         </div>
 
