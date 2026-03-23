@@ -25,10 +25,10 @@ export const TRUST_DECAY_HALF_LIFE_DAYS = 7;
 export type TrustLevel = (typeof TRUST_LEVELS)[keyof typeof TRUST_LEVELS];
 
 export const TRUST_LEVEL_NAMES: Record<TrustLevel, string> = {
-  [TRUST_LEVELS.READ_ONLY]: "Read Only",
-  [TRUST_LEVELS.DRAFT]: "Draft & Suggest",
-  [TRUST_LEVELS.EXECUTE_CONFIRM]: "Execute with Confirmation",
-  [TRUST_LEVELS.AUTONOMOUS]: "Autonomous (Low-Risk)",
+  [TRUST_LEVELS.READ_ONLY]: "Probationary",
+  [TRUST_LEVELS.DRAFT]: "Junior",
+  [TRUST_LEVELS.EXECUTE_CONFIRM]: "Senior",
+  [TRUST_LEVELS.AUTONOMOUS]: "Executive",
 };
 
 export const TRUST_LEVEL_COLORS: Record<TrustLevel, string> = {
@@ -48,53 +48,24 @@ export const CIBA_REQUIRED_ACTIONS = [
   "financial_transaction",
 ] as const;
 
-export type AgentName =
-  | "orchestrator"
-  | "comms"
-  | "scheduler"
-  | "finance"
-  | "docs";
+export type AgentName = string;
 
-export const AGENT_SERVICES: Record<AgentName, string[]> = {
-  orchestrator: [],
-  comms: ["gmail", "slack"],
-  scheduler: ["calendar"],
-  finance: ["stripe"],
-  docs: ["drive"],
-};
+export const AGENT_COLOR_PALETTE = [
+  { gradient: "from-indigo-500 to-violet-500", text: "text-indigo-400", bg: "bg-indigo-500/10" },
+  { gradient: "from-cyan-500 to-blue-500", text: "text-cyan-400", bg: "bg-cyan-500/10" },
+  { gradient: "from-emerald-500 to-green-500", text: "text-emerald-400", bg: "bg-emerald-500/10" },
+  { gradient: "from-amber-500 to-orange-500", text: "text-amber-400", bg: "bg-amber-500/10" },
+  { gradient: "from-rose-500 to-pink-500", text: "text-rose-400", bg: "bg-rose-500/10" },
+  { gradient: "from-violet-500 to-purple-500", text: "text-violet-400", bg: "bg-violet-500/10" },
+];
 
-export const AGENT_DISPLAY: Record<
-  AgentName,
-  { label: string; icon: string; description: string; color: string }
-> = {
-  orchestrator: {
-    label: "Orchestrator",
-    icon: "Brain",
-    description: "Routes tasks and coordinates agents",
-    color: "#818cf8",
-  },
-  comms: {
-    label: "Comms Agent",
-    icon: "MessageSquare",
-    description: "Gmail & Slack communications",
-    color: "#60a5fa",
-  },
-  scheduler: {
-    label: "Scheduler Agent",
-    icon: "Calendar",
-    description: "Google Calendar management",
-    color: "#a78bfa",
-  },
-  finance: {
-    label: "Finance Agent",
-    icon: "DollarSign",
-    description: "Stripe invoicing & payments",
-    color: "#34d399",
-  },
-  docs: {
-    label: "Docs Agent",
-    icon: "FileText",
-    description: "Google Drive documents",
-    color: "#fb923c",
-  },
+export const SERVICE_DISPLAY: Record<string, { label: string; icon: string }> = {
+  gmail: { label: "Gmail", icon: "Mail" },
+  calendar: { label: "Calendar", icon: "Calendar" },
+  drive: { label: "Drive", icon: "HardDrive" },
+  slack: { label: "Slack", icon: "Hash" },
+  stripe: { label: "Stripe", icon: "CreditCard" },
+  github: { label: "GitHub", icon: "Github" },
+  discord: { label: "Discord", icon: "MessageCircle" },
+  figma: { label: "Figma", icon: "Figma" },
 };

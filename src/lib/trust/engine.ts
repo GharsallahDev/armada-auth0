@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/client";
-import { trustScores, auditLogs } from "@/lib/db/schema";
+import { trustScores, auditLogs, agents } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import {
   TRUST_LEVELS,
@@ -56,22 +56,17 @@ export async function getTrustScore(
   return { score: row.score, level, decayedScore };
 }
 
-export async function getAllTrustScores(
-  userId: string
-): Promise<
-  Record<AgentName, { score: number; level: TrustLevel; decayedScore: number }>
-> {
-  const agents: AgentName[] = ["comms", "scheduler", "finance", "docs"];
-  const result: Record<string, { score: number; level: TrustLevel; decayedScore: number }> = {};
+export async function getAllTrustScores(userId: string) {
+  const userAgents = await db
+    .select({ slug: agents.slug })
+    .from(agents)
+    .where(and(eq(agents.userId, userId), eq(agents.status, "active")));
 
-  for (const agent of agents) {
-    result[agent] = await getTrustScore(userId, agent);
+  const scores: Record<string, { score: number; level: TrustLevel; decayedScore: number }> = {};
+  for (const agent of userAgents) {
+    scores[agent.slug] = await getTrustScore(userId, agent.slug);
   }
-
-  return result as Record<
-    AgentName,
-    { score: number; level: TrustLevel; decayedScore: number }
-  >;
+  return scores;
 }
 
 export async function addTrustPoints(
@@ -150,9 +145,13 @@ export async function revokeTrust(
 }
 
 export async function revokeAllTrust(userId: string): Promise<void> {
-  const agents: AgentName[] = ["comms", "scheduler", "finance", "docs"];
-  for (const agent of agents) {
-    await revokeTrust(userId, agent);
+  const userAgents = await db
+    .select({ slug: agents.slug })
+    .from(agents)
+    .where(and(eq(agents.userId, userId), eq(agents.status, "active")));
+
+  for (const agent of userAgents) {
+    await revokeTrust(userId, agent.slug);
   }
 }
 

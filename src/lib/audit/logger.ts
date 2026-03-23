@@ -1,12 +1,12 @@
 import { db } from "@/lib/db/client";
 import { auditLogs, agentActions } from "@/lib/db/schema";
 import { addTrustPoints } from "@/lib/trust/engine";
-import { TRUST_POINTS, type AgentName } from "@/lib/trust/levels";
+import { TRUST_POINTS } from "@/lib/trust/levels";
 import { desc, eq } from "drizzle-orm";
 
 interface LogActionParams {
   userId: string;
-  agentName: AgentName;
+  agentName: string;
   action: string;
   actionType: "read" | "draft" | "execute";
   service: string;
