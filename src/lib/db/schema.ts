@@ -6,6 +6,7 @@ import {
   boolean,
   timestamp,
   jsonb,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const trustScores = pgTable("trust_scores", {
@@ -82,3 +83,20 @@ export const agentActions = pgTable("agent_actions", {
   trustPointsEarned: integer("trust_points_earned").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const agents = pgTable("agents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull(),
+  avatarGradient: text("avatar_gradient").default("from-indigo-500 to-violet-500"),
+  role: text("role").notNull(),
+  instructions: text("instructions").notNull(),
+  services: jsonb("services").notNull().$defaultFn(() => []),
+  trustPolicy: jsonb("trust_policy").notNull().$defaultFn(() => ({})),
+  status: text("status").notNull().default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("agents_user_slug_idx").on(table.userId, table.slug),
+]);
