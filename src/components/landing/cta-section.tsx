@@ -30,9 +30,9 @@ export function CtaSection() {
             WebkitTextFillColor: "transparent",
           }}
         >
-          Ready to command
+          Ready to hire your first
           <br />
-          your AI fleet?
+          AI employee?
         </h2>
         <p className="text-[15px] text-[#7a7e91] mb-8 tracking-[-0.01em]">
           Deploy agents that respect boundaries, earn trust, and keep you in
@@ -43,7 +43,7 @@ export function CtaSection() {
             href="/auth/login?screen_hint=signup"
             className="group inline-flex items-center justify-center h-10 px-5 rounded-lg text-[14px] font-medium text-white bg-indigo-600 hover:bg-indigo-500 active:scale-[0.97] transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030303]"
           >
-            Get started
+            Start Hiring
             <ArrowRight className="ml-2 h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
           </a>
           <a

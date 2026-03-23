@@ -27,13 +27,19 @@ export function Nav() {
               href="#how-it-works"
               className="text-[13px] text-[#6b7280] hover:text-indigo-300 transition-colors"
             >
-              How it works
+              How it Works
             </a>
             <a
               href="#trust-levels"
               className="text-[13px] text-[#6b7280] hover:text-indigo-300 transition-colors"
             >
-              Trust levels
+              Trust Levels
+            </a>
+            <a
+              href="#integrations"
+              className="text-[13px] text-[#6b7280] hover:text-indigo-300 transition-colors"
+            >
+              Integrations
             </a>
           </div>
         </div>
@@ -48,7 +54,7 @@ export function Nav() {
             href="/auth/login?screen_hint=signup"
             className="inline-flex items-center justify-center h-8 px-3.5 rounded-lg text-[13px] font-medium bg-indigo-600 text-white hover:bg-indigo-500 active:scale-[0.97] transition-all shadow-sm shadow-indigo-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
           >
-            Get started
+            Start Hiring
           </a>
         </div>
       </div>

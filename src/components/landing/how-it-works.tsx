@@ -1,32 +1,32 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldOff, TrendingUp, Smartphone } from "lucide-react";
+import { UserPlus, TrendingUp, Smartphone } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: ShieldOff,
+    icon: UserPlus,
     color: "#f87171",
-    title: "Agents start at zero trust",
+    title: "Hire",
     description:
-      "Every agent begins with read-only access. No permissions are assumed. Auth0 Token Vault holds all credentials -- tokens never touch the frontend or the LLM.",
+      "Create an AI employee. Name it, define its role, assign services.",
   },
   {
     number: "02",
     icon: TrendingUp,
     color: "#a78bfa",
-    title: "They earn permissions through success",
+    title: "Trust",
     description:
-      "Each successful operation builds trust. Agents progress from Read Only to Draft to Execute with Confirmation to fully Autonomous. Trust decays with a 7-day half-life.",
+      "Your employee starts at Probation. It earns promotions through successful work.",
   },
   {
     number: "03",
     icon: Smartphone,
     color: "#34d399",
-    title: "Sensitive actions require your approval",
+    title: "Control",
     description:
-      "High-stakes operations trigger a push notification to your phone via Auth0 CIBA. You review, approve or deny, and the agent proceeds. You are always the final authority.",
+      "Approve sensitive actions from your phone. Terminate anytime.",
   },
 ];
 

@@ -8,25 +8,25 @@ const features = [
     icon: Lock,
     color: "#60a5fa",
     label: "Token Vault",
-    sublabel: "Credentials never touch the client",
+    sublabel: "Connect employees to 34+ services",
   },
   {
     icon: Smartphone,
     color: "#f59e0b",
     label: "CIBA",
-    sublabel: "Push notification approvals",
+    sublabel: "Mobile approval for sensitive actions",
   },
   {
     icon: Fingerprint,
     color: "#a78bfa",
     label: "Universal Login",
-    sublabel: "Single sign-on for humans",
+    sublabel: "Secure access for your workforce",
   },
   {
     icon: Shield,
     color: "#34d399",
-    label: "Fine-Grained Auth",
-    sublabel: "Per-agent, per-service scoping",
+    label: "Progressive Trust",
+    sublabel: "Progressive autonomy through proven performance",
   },
 ];
 
