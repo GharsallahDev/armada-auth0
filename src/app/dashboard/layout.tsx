@@ -35,7 +35,7 @@ export default async function DashboardLayout({
         <SidebarNav />
         <div className="border-t border-border p-3 space-y-2">
           <div className="flex items-center gap-2.5 px-2 py-1.5">
-            <Avatar size="sm">
+            <Avatar className="h-8 w-8">
               <AvatarFallback className="text-[10px] font-semibold">{initial}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
@@ -44,9 +44,11 @@ export default async function DashboardLayout({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" className="flex-1 justify-start text-muted-foreground" render={<a href="/auth/logout" />}>
-              <LogOut className="h-3.5 w-3.5 mr-2" />
-              Sign Out
+            <Button variant="ghost" size="sm" className="flex-1 justify-start text-muted-foreground" asChild>
+              <a href="/auth/logout">
+                <LogOut className="h-3.5 w-3.5 mr-2" />
+                Sign Out
+              </a>
             </Button>
             <ThemeToggle />
           </div>

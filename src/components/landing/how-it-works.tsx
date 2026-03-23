@@ -1,113 +1,111 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { UserPlus, TrendingUp, Smartphone } from "lucide-react";
+import {
+  UserPlus,
+  Shield,
+  Smartphone,
+  TrendingUp,
+  Zap,
+  Lock,
+} from "lucide-react";
+import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
 
-const steps = [
+const features: BentoItem[] = [
   {
-    number: "01",
-    icon: UserPlus,
-    color: "#f87171",
-    title: "Hire",
+    title: "Hire in Seconds",
+    meta: "3-step wizard",
     description:
-      "Create an AI employee. Name it, define its role, assign services.",
+      "Create AI employees from predefined roles — engineer, analyst, designer, support. Assign tools, set permissions, deploy instantly.",
+    icon: <UserPlus className="w-4 h-4 text-indigo-500" />,
+    status: "Core",
+    tags: ["Onboarding", "Templates"],
+    colSpan: 2,
+    hasPersistentHover: true,
   },
   {
-    number: "02",
-    icon: TrendingUp,
-    color: "#a78bfa",
-    title: "Trust",
+    title: "Progressive Trust",
+    meta: "4 levels",
     description:
-      "Your employee starts at Probation. It earns promotions through successful work.",
+      "Employees start at L0 Probation. They earn promotions through successful tasks — never granted, always earned.",
+    icon: <TrendingUp className="w-4 h-4 text-emerald-500" />,
+    status: "L0 → L3",
+    tags: ["Trust", "Governance"],
   },
   {
-    number: "03",
-    icon: Smartphone,
-    color: "#34d399",
-    title: "Control",
+    title: "Token Vault",
+    meta: "34+ services",
     description:
-      "Approve sensitive actions from your phone. Terminate anytime.",
+      "Connect employees to Gmail, Slack, GitHub, Stripe, Calendar and more via Auth0 Token Vault. Secure OAuth delegation.",
+    icon: <Lock className="w-4 h-4 text-violet-500" />,
+    tags: ["Auth0", "OAuth"],
+    colSpan: 2,
+  },
+  {
+    title: "CIBA Approval",
+    meta: "Real-time",
+    description:
+      "Sensitive actions trigger push notifications to your phone. Approve or deny from anywhere — your agents wait for you.",
+    icon: <Smartphone className="w-4 h-4 text-amber-500" />,
+    status: "Secure",
+    tags: ["Mobile", "Auth0"],
+  },
+  {
+    title: "Live Monitoring",
+    meta: "Real-time",
+    description:
+      "Watch every action in real-time. Full audit trail, performance metrics, and trust score tracking across your workforce.",
+    icon: <Shield className="w-4 h-4 text-sky-500" />,
+    status: "Live",
+    tags: ["Audit", "Dashboard"],
+  },
+  {
+    title: "Instant Termination",
+    meta: "One tap",
+    description:
+      "Revoke all access and terminate any employee instantly. All tokens invalidated, all sessions killed. You're always in control.",
+    icon: <Zap className="w-4 h-4 text-rose-500" />,
+    status: "Critical",
+    tags: ["Security", "Control"],
+    colSpan: 2,
   },
 ];
 
 export function HowItWorks() {
   return (
     <section id="how-it-works" className="py-24 px-6">
-      <div className="max-w-2xl mx-auto">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-[13px] font-medium text-primary/50 uppercase tracking-[0.1em] mb-3"
-        >
-          How it works
-        </motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 12 }}
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-medium tracking-[-0.03em] mb-16 leading-tight"
-          style={{
-            background: "linear-gradient(to bottom, hsl(var(--foreground)), hsl(var(--muted-foreground)))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
+          className="text-center mb-4"
         >
-          Progressive trust,
-          <br />
-          not blind faith.
-        </motion.h2>
+          <p className="text-[13px] font-medium text-primary/60 uppercase tracking-[0.15em] mb-4">
+            How it works
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/70">
+              Everything you need to manage
+            </span>
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500">
+              an AI workforce
+            </span>
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            From hiring to termination — full lifecycle management for your AI employees.
+          </p>
+        </motion.div>
 
-        <div className="relative">
-          {/* Connecting line with color gradient */}
-          <div
-            className="absolute left-[15px] top-2 bottom-2 w-px"
-            style={{
-              background:
-                "linear-gradient(to bottom, #f8717130, #a78bfa30, #34d39930, transparent)",
-            }}
-          />
-
-          <div className="space-y-14">
-            {steps.map((step, i) => {
-              const Icon = step.icon;
-              return (
-                <motion.div
-                  key={step.number}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.12, duration: 0.5 }}
-                  className="relative pl-12"
-                >
-                  {/* Icon on the line */}
-                  <div
-                    className="absolute left-0 top-0.5 w-[31px] h-[31px] rounded-lg flex items-center justify-center"
-                    style={{
-                      backgroundColor: `${step.color}12`,
-                      border: `1px solid ${step.color}25`,
-                    }}
-                  >
-                    <Icon className="h-3.5 w-3.5" style={{ color: step.color }} />
-                  </div>
-
-                  <p
-                    className="text-[11px] font-mono font-medium tracking-wider mb-2"
-                    style={{ color: `${step.color}80` }}
-                  >
-                    {step.number}
-                  </p>
-                  <h3 className="text-[17px] font-medium text-foreground tracking-[-0.02em] mb-2">
-                    {step.title}
-                  </h3>
-                  <p className="text-[15px] leading-relaxed text-muted-foreground tracking-[-0.01em]">
-                    {step.description}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+        >
+          <BentoGrid items={features} />
+        </motion.div>
       </div>
     </section>
   );

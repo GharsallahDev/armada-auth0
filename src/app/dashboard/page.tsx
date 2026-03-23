@@ -51,9 +51,11 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <KillSwitch onRevoke={() => mutateTrust()} />
-            <Button size="sm" render={<Link href="/dashboard/hire" />}>
-              <UserPlus className="h-4 w-4 mr-1.5" />
-              Hire Employee
+            <Button size="sm" asChild>
+              <Link href="/dashboard/hire">
+                <UserPlus className="h-4 w-4 mr-1.5" />
+                Hire Employee
+              </Link>
             </Button>
           </div>
         </div>
@@ -87,9 +89,11 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Employees</h2>
             {activeAgents.length > 0 && (
-              <Button variant="ghost" size="xs" render={<Link href="/dashboard/hire" />}>
-                <UserPlus className="h-3 w-3 mr-1" />
-                Hire
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard/hire">
+                  <UserPlus className="h-3 w-3 mr-1" />
+                  Hire
+                </Link>
               </Button>
             )}
           </div>
@@ -131,9 +135,11 @@ export default function DashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Recent Activity</h2>
-            <Button variant="ghost" size="xs" render={<Link href="/dashboard/audit" />}>
-              View All
-              <ArrowRight className="h-3 w-3 ml-1" />
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/dashboard/audit">
+                View All
+                <ArrowRight className="h-3 w-3 ml-1" />
+              </Link>
             </Button>
           </div>
           <Card>

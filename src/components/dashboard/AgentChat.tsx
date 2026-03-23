@@ -70,7 +70,7 @@ export function AgentChat({ slug, agentName, avatarGradient }: AgentChatProps) {
               className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
             >
               {isUser ? (
-                <Avatar size="sm"><AvatarFallback><User className="h-3 w-3" /></AvatarFallback></Avatar>
+                <Avatar className="h-6 w-6"><AvatarFallback><User className="h-3 w-3" /></AvatarFallback></Avatar>
               ) : (
                 <div className={`h-6 w-6 rounded-md bg-gradient-to-br ${avatarGradient} flex items-center justify-center shrink-0`}>
                   <span className="text-[9px] font-bold text-primary-foreground">{agentName[0]}</span>
