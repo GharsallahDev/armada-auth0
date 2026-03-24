@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search, LayoutDashboard, UserPlus, ScrollText, Settings,
-  MessageCircle, Zap, Shield, Send,
+  MessageCircle, Zap, Shield, Send, BarChart3, Smartphone,
+  Bell, ListTodo,
 } from "lucide-react";
 
 interface Action {
@@ -19,11 +20,16 @@ interface Action {
 
 const actions: Action[] = [
   { icon: LayoutDashboard, label: "Go to Workforce", description: "View your AI employees", shortcut: "G W", type: "Navigation", href: "/dashboard" },
+  { icon: BarChart3, label: "Analytics", description: "Workforce performance & trust metrics", shortcut: "G D", type: "Navigation", href: "/dashboard/analytics" },
+  { icon: ListTodo, label: "Task Queue", description: "Monitor active work & task history", shortcut: "G T", type: "Navigation", href: "/dashboard/tasks" },
+  { icon: Smartphone, label: "Approvals", description: "CIBA authorization requests", shortcut: "G P", type: "Navigation", href: "/dashboard/approvals" },
+  { icon: ScrollText, label: "Audit Trail", description: "Complete log of agent actions", shortcut: "G A", type: "Navigation", href: "/dashboard/audit" },
+  { icon: Shield, label: "Policies", description: "Permission rules & guardrails", type: "Navigation", href: "/dashboard/policies" },
+  { icon: Bell, label: "Notifications", description: "System alerts & activity", shortcut: "G N", type: "Navigation", href: "/dashboard/notifications" },
   { icon: UserPlus, label: "Hire Employee", description: "Create a new AI agent", shortcut: "G H", type: "Action", href: "/dashboard/hire" },
-  { icon: ScrollText, label: "Audit Trail", description: "View all agent actions", shortcut: "G A", type: "Navigation", href: "/dashboard/audit" },
   { icon: Settings, label: "Settings", description: "Manage connections & config", shortcut: "G S", type: "Navigation", href: "/dashboard/settings" },
   { icon: MessageCircle, label: "Chat with Agent", description: "Open agent conversation", type: "Action" },
-  { icon: Shield, label: "Revoke All Trust", description: "Emergency kill switch", type: "Danger" },
+  { icon: Zap, label: "Revoke All Trust", description: "Emergency kill switch", type: "Danger" },
 ];
 
 const containerVariants = {

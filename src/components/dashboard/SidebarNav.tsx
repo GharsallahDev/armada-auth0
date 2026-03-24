@@ -16,6 +16,11 @@ import {
   ScrollText,
   Settings,
   LogOut,
+  BarChart3,
+  Smartphone,
+  Shield,
+  Bell,
+  ListTodo,
 } from "lucide-react";
 import { TRUST_LEVEL_NAMES, type TrustLevel } from "@/lib/trust/levels";
 import { useState } from "react";
@@ -25,8 +30,13 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const mainNav = [
   { href: "/dashboard", label: "Workforce", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/hire", label: "Hire", icon: UserPlus },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard/tasks", label: "Tasks", icon: ListTodo },
+  { href: "/dashboard/approvals", label: "Approvals", icon: Smartphone },
   { href: "/dashboard/audit", label: "Audit", icon: ScrollText },
+  { href: "/dashboard/policies", label: "Policies", icon: Shield },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/dashboard/hire", label: "Hire", icon: UserPlus },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
