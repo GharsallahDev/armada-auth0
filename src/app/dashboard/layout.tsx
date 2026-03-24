@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
+import { CommandPalette } from "@/components/dashboard/CommandPalette";
 
 export default async function DashboardLayout({
   children,
@@ -23,6 +24,7 @@ export default async function DashboardLayout({
         userEmail={session.user.email || ""}
       />
       <main className="flex-1 overflow-auto">{children}</main>
+      <CommandPalette />
     </div>
   );
 }

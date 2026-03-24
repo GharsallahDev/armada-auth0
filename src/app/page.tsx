@@ -4,6 +4,7 @@ import { Nav } from "@/components/landing/nav";
 import { HeroSection } from "@/components/landing/hero-section";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { TrustLevels } from "@/components/landing/trust-levels";
+import { IntegrationCarousel } from "@/components/landing/integration-carousel";
 import { PoweredBy } from "@/components/landing/powered-by";
 import { CtaSection } from "@/components/landing/cta-section";
 
@@ -22,6 +23,7 @@ export default async function Home() {
         <HeroSection />
         <HowItWorks />
         <TrustLevels />
+        <IntegrationCarousel />
         <PoweredBy />
         <CtaSection />
       </main>

@@ -6,6 +6,7 @@ import {
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
 } from "lucide-react";
 import { TRUST_LEVEL_NAMES, SERVICE_DISPLAY, type TrustLevel } from "@/lib/trust/levels";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
@@ -40,6 +41,7 @@ export function AgentCard({ agent, trust }: AgentCardProps) {
 
   return (
     <Link href={`/dashboard/employee/${agent.slug}`}>
+      <GlowingEffect spread={30} proximity={80} blur={1} borderWidth={1} className="rounded-2xl">
       <div className={`group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${colors.glow} cursor-pointer p-5`}>
         {/* Hover gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -91,6 +93,7 @@ export function AgentCard({ agent, trust }: AgentCardProps) {
           </div>
         </div>
       </div>
+      </GlowingEffect>
     </Link>
   );
 }

@@ -10,6 +10,7 @@ import {
   Lock,
 } from "lucide-react";
 import { BentoGrid, type BentoItem } from "@/components/ui/bento-grid";
+import { DisplayCards } from "@/components/ui/display-cards";
 
 const features: BentoItem[] = [
   {
@@ -97,14 +98,21 @@ export function HowItWorks() {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
-          <BentoGrid items={features} />
-        </motion.div>
+        <div className="flex flex-col lg:flex-row gap-8 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="flex-1"
+          >
+            <BentoGrid items={features} />
+          </motion.div>
+
+          <div className="hidden lg:block w-[340px] shrink-0">
+            <DisplayCards />
+          </div>
+        </div>
       </div>
     </section>
   );
