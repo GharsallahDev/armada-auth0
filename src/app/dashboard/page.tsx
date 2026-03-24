@@ -59,7 +59,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="px-8 py-8 max-w-[1400px] space-y-8">
-        {/* Stats */}
+        {/* Stats — glassmorphic gradient cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {stats.map((stat, i) => (
             <motion.div
@@ -67,16 +67,28 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className={`relative group overflow-hidden rounded-2xl border ${stat.borderColor} bg-card/50 backdrop-blur-sm p-5 transition-all duration-300 hover:shadow-lg`}
+              className="relative group"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className="relative flex items-center gap-4">
-                <div className="h-11 w-11 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center backdrop-blur-sm">
-                  <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-foreground tabular-nums">{stat.value}</p>
-                  <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
+              {/* Gradient border wrapper */}
+              <div className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${stat.gradient} opacity-60 group-hover:opacity-100 transition-opacity duration-500`} />
+              {/* Colored glow on hover */}
+              <div className={`absolute -inset-2 rounded-3xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-40 blur-xl transition-all duration-700`} />
+
+              <div className="relative overflow-hidden rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-xl p-5 transition-all duration-300">
+                {/* Shine sweep effect */}
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
+
+                {/* Subtle gradient fill */}
+                <div className={`absolute top-0 right-0 h-32 w-32 rounded-full bg-gradient-to-br ${stat.gradient} opacity-[0.08] -translate-y-8 translate-x-8 group-hover:opacity-20 transition-opacity duration-500`} />
+
+                <div className="relative flex items-center gap-4">
+                  <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${stat.gradient} border border-white/10 flex items-center justify-center backdrop-blur-sm`}>
+                    <stat.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-foreground tabular-nums">{stat.value}</p>
+                    <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
+                  </div>
                 </div>
               </div>
             </motion.div>

@@ -79,16 +79,24 @@ export default function AuditPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className={`group relative overflow-hidden rounded-2xl border ${stat.borderColor} bg-card/50 backdrop-blur-sm p-5 transition-all duration-300 hover:shadow-lg`}
+              className="relative group"
             >
-              <div className={`absolute top-0 right-0 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-[0.05] -translate-y-6 translate-x-6 group-hover:opacity-10 transition-opacity duration-500`} />
-              <div className="relative flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center">
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
-                  <p className="text-[11px] text-muted-foreground">{stat.label}</p>
+              {/* Gradient border */}
+              <div className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${stat.gradient} opacity-60 group-hover:opacity-100 transition-opacity duration-500`} />
+              <div className={`absolute -inset-2 rounded-3xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-40 blur-xl transition-all duration-700`} />
+
+              <div className="relative overflow-hidden rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-xl p-5 transition-all duration-300">
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
+                <div className={`absolute top-0 right-0 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-[0.08] -translate-y-6 translate-x-6 group-hover:opacity-20 transition-opacity duration-500`} />
+
+                <div className="relative flex items-center gap-3">
+                  <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${stat.gradient} border border-white/10 flex items-center justify-center`}>
+                    <stat.icon className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
+                    <p className="text-[11px] text-muted-foreground">{stat.label}</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
