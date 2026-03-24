@@ -21,7 +21,6 @@ const features: BentoItem[] = [
     status: "Core",
     tags: ["Onboarding", "Templates"],
     colSpan: 2,
-    hasPersistentHover: true,
   },
   {
     title: "Progressive Trust",
@@ -89,7 +88,7 @@ export function HowItWorks() {
               Everything you need to manage
             </span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-indigo-500 to-violet-500">
               an AI workforce
             </span>
           </h2>

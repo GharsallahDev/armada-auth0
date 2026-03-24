@@ -87,7 +87,7 @@ export function HeroSection() {
           </motion.div>
 
           {/* Main heading with FlipWords */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-3 tracking-tighter">
             <motion.span
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -100,7 +100,7 @@ export function HeroSection() {
             <FlipWords
               words={["Engineer", "Analyst", "Designer", "Marketer", "Support Rep"]}
               duration={2500}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500"
+              className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-indigo-500 to-violet-500"
             />
           </h1>
 

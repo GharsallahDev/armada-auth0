@@ -58,9 +58,9 @@ export function PoweredBy() {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/50 bg-muted/30 backdrop-blur-sm mb-6">
             <img
-              src="https://cdn.auth0.com/website/assets/img/press/auth0-logo-monotone-white.svg"
-              alt="Auth0"
-              className="h-4 opacity-60 dark:opacity-80 dark:invert-0 invert"
+              src="https://pages.okta.com/rs/855-QAH-699/images/email-main-template_auth0-by-okta-logo_black_279x127_3x.png"
+              alt="Auth0 by Okta"
+              className="h-5 dark:invert"
             />
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">

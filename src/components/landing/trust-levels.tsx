@@ -12,6 +12,7 @@ const levels = [
     description: "Read-only. Observe and report. Zero write access.",
     icon: Eye,
     color: "from-gray-500 to-slate-600",
+    iconColor: "#6b7280",
     glowColor: "rgba(107,114,128,0.15)",
     points: "0 pts",
     capabilities: ["Read data", "Generate reports", "Monitor feeds"],
@@ -22,6 +23,7 @@ const levels = [
     description: "Can draft and create. Nothing sent without review.",
     icon: FileEdit,
     color: "from-blue-500 to-cyan-500",
+    iconColor: "#3b82f6",
     glowColor: "rgba(59,130,246,0.15)",
     points: "100 pts",
     capabilities: ["Draft emails", "Create docs", "Stage events"],
@@ -32,6 +34,7 @@ const levels = [
     description: "Execute with CIBA approval. You confirm from your phone.",
     icon: CheckCircle,
     color: "from-violet-500 to-purple-500",
+    iconColor: "#8b5cf6",
     glowColor: "rgba(139,92,246,0.15)",
     points: "300 pts",
     capabilities: ["Send emails", "Create events", "Process invoices"],
@@ -42,6 +45,7 @@ const levels = [
     description: "Full autonomous access. Earned, never granted.",
     icon: Crown,
     color: "from-emerald-500 to-green-500",
+    iconColor: "#34d399",
     glowColor: "rgba(52,211,153,0.15)",
     points: "750 pts",
     capabilities: ["Autonomous ops", "Policy-bound", "Full access"],
@@ -116,8 +120,14 @@ function TrustCard({
 
       <div className="relative z-10 p-6">
         <div className="flex items-start justify-between mb-4">
-          <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${level.color} flex items-center justify-center shadow-lg`}>
-            <Icon className="h-5 w-5 text-white" />
+          <div
+            className="h-11 w-11 rounded-xl backdrop-blur-md border border-white/20 dark:border-white/10 flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${level.glowColor}, ${level.glowColor.replace('0.15', '0.05')})`,
+              boxShadow: `0 4px 16px ${level.glowColor}, inset 0 1px 1px rgba(255,255,255,0.15)`,
+            }}
+          >
+            <Icon className="h-5 w-5" style={{ color: level.iconColor }} strokeWidth={1.5} />
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-muted-foreground">
@@ -169,7 +179,7 @@ export function TrustLevels() {
               Trust is earned,
             </span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-indigo-500 to-violet-500">
               never granted
             </span>
           </h2>

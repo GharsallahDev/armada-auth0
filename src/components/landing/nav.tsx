@@ -17,26 +17,26 @@ export function Nav() {
             <img
               src="/logo-192.png"
               alt="Armada"
-              className="h-6 w-6 rounded-md"
+              className="h-8 w-8 rounded-lg"
             />
-            <span className="text-[15px] font-semibold tracking-[-0.02em] text-foreground">
+            <span className="text-[16px] font-bold tracking-[-0.03em] text-foreground">
               Armada
             </span>
           </a>
           <div className="hidden sm:flex items-center gap-1 ml-2">
-            <Button variant="ghost" size="sm" asChild>
-              <a href="#how-it-works" className="text-muted-foreground hover:text-foreground">Features</a>
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <a href="#trust-levels" className="text-muted-foreground hover:text-foreground">Trust Levels</a>
-            </Button>
+            <a href="#how-it-works" className="text-[13px] text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md hover:bg-muted/50">
+              Features
+            </a>
+            <a href="#trust-levels" className="text-[13px] text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md hover:bg-muted/50">
+              Trust Levels
+            </a>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-            <a href="/auth/login" className="text-muted-foreground hover:text-foreground">Sign in</a>
-          </Button>
-          <Button size="sm" asChild>
+          <a href="/auth/login" className="hidden sm:inline-flex text-[13px] text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md hover:bg-muted/50">
+            Sign in
+          </a>
+          <Button size="sm" asChild className="rounded-lg font-semibold">
             <a href="/auth/login?screen_hint=signup">Start Hiring</a>
           </Button>
         </div>

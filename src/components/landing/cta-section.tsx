@@ -22,7 +22,7 @@ export function CtaSection() {
             Ready to hire your
           </span>
           <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-indigo-500 to-violet-500">
             first AI employee?
           </span>
         </h2>
