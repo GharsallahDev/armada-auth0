@@ -3,7 +3,6 @@
 import type { KeyboardEvent } from "react";
 import { SendHorizontal, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 
 interface ChatInputProps {
   value: string;
@@ -16,7 +15,6 @@ export function ChatInput({ value, onChange, isLoading }: ChatInputProps) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (value.trim() && !isLoading) {
-        // Submit the parent form
         e.currentTarget.form?.requestSubmit();
       }
     }
@@ -30,28 +28,19 @@ export function ChatInput({ value, onChange, isLoading }: ChatInputProps) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={
-            isLoading
-              ? "Agents are working..."
-              : "Ask Armada to help with your business..."
-          }
+          placeholder={isLoading ? "Agents are working..." : "Ask Armada to help with your business..."}
           disabled={isLoading}
-          className="min-h-[44px] resize-none pr-2 bg-white/[0.03] border-white/[0.08] text-neutral-200 placeholder:text-neutral-600 focus-visible:ring-white/[0.1]"
+          className="min-h-[44px] resize-none pr-2 bg-muted/30 border-border/50 text-foreground placeholder:text-muted-foreground"
           rows={1}
         />
       </div>
-      <Button
+      <button
         type="submit"
-        size="icon"
         disabled={isLoading || !value.trim()}
-        className="shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white"
+        className="shrink-0 h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-40 transition-colors"
       >
-        {isLoading ? (
-          <Loader2 className="size-4 animate-spin" />
-        ) : (
-          <SendHorizontal className="size-4" />
-        )}
-      </Button>
+        {isLoading ? <Loader2 className="size-4 animate-spin" /> : <SendHorizontal className="size-4" />}
+      </button>
     </div>
   );
 }

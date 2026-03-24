@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import { HireWizard } from "@/components/dashboard/HireWizard";
-import { UserPlus, Loader2 } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -12,7 +12,6 @@ export default function HirePage() {
     fetcher
   );
 
-  // Always include API-key/bot-token services as connected
   const alwaysConnected = ["slack", "stripe"];
   const connectedProviders = [
     ...alwaysConnected,
@@ -21,18 +20,16 @@ export default function HirePage() {
 
   return (
     <div className="min-h-full">
-      <div className="border-b border-white/[0.06]">
+      <div className="border-b border-border/50">
         <div className="px-8 py-6 max-w-[1400px]">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-              <UserPlus className="h-4.5 w-4.5 text-indigo-400" />
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 border border-primary/20 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight text-white">
-                Hire New Employee
-              </h1>
-              <p className="text-[13px] text-neutral-500 mt-0.5">
-                Create an AI employee with a specific role and assigned services
+              <h1 className="text-xl font-bold tracking-tight text-foreground">Hire New Employee</h1>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                Choose a role template or create a custom AI employee
               </p>
             </div>
           </div>
@@ -42,7 +39,7 @@ export default function HirePage() {
       <div className="px-8 py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-neutral-500" />
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
           <HireWizard connectedProviders={connectedProviders} />

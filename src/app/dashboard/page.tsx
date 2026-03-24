@@ -3,14 +3,10 @@
 import useSWR from "swr";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { UserPlus, Users, TrendingUp, Activity, ArrowRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { UserPlus, Users, TrendingUp, Activity, ArrowRight, Sparkles } from "lucide-react";
 import { AgentCard } from "@/components/dashboard/AgentCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { KillSwitch } from "@/components/dashboard/KillSwitch";
-import { TRUST_LEVEL_NAMES, type TrustLevel } from "@/lib/trust/levels";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -36,66 +32,62 @@ export default function DashboardPage() {
     : 0;
 
   const stats = [
-    { label: "Total Employees", value: activeAgents.length, icon: Users, color: "text-primary" },
-    { label: "Avg Trust Score", value: avgTrust, icon: TrendingUp, color: "text-emerald-400" },
-    { label: "Total Actions", value: activity?.length || 0, icon: Activity, color: "text-amber-400" },
+    { label: "Employees", value: activeAgents.length, icon: Users, gradient: "from-indigo-500/20 to-violet-500/20", iconColor: "text-indigo-400", borderColor: "border-indigo-500/20" },
+    { label: "Avg Trust", value: avgTrust, icon: TrendingUp, gradient: "from-emerald-500/20 to-green-500/20", iconColor: "text-emerald-400", borderColor: "border-emerald-500/20" },
+    { label: "Actions", value: activity?.length || 0, icon: Activity, gradient: "from-amber-500/20 to-orange-500/20", iconColor: "text-amber-400", borderColor: "border-amber-500/20" },
   ];
 
   return (
     <div className="min-h-full">
-      <div className="border-b border-border px-8 py-6">
+      {/* Header */}
+      <div className="border-b border-border/50 px-8 py-6">
         <div className="flex items-center justify-between max-w-[1400px]">
           <div>
-            <h1 className="text-lg font-semibold tracking-tight text-foreground">Workforce</h1>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">Workforce</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Manage your AI employees</p>
           </div>
           <div className="flex items-center gap-3">
             <KillSwitch onRevoke={() => mutateTrust()} />
-            <Button size="sm" asChild>
-              <Link href="/dashboard/hire">
-                <UserPlus className="h-4 w-4 mr-1.5" />
-                Hire Employee
-              </Link>
-            </Button>
+            <Link
+              href="/dashboard/hire"
+              className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-semibold text-foreground bg-gradient-to-b from-primary/20 to-primary/5 border border-primary/20 backdrop-blur-sm shadow-sm hover:shadow-md hover:shadow-primary/10 hover:-translate-y-px transition-all duration-200"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              Hire Employee
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="px-8 py-8 max-w-[1400px] space-y-8">
-        <div className="grid grid-cols-3 gap-4">
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.08 }}
+              className={`relative group overflow-hidden rounded-2xl border ${stat.borderColor} bg-card/50 backdrop-blur-sm p-5 transition-all duration-300 hover:shadow-lg`}
             >
-              <Card>
-                <CardContent className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <div className="relative flex items-center gap-4">
+                <div className="h-11 w-11 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center backdrop-blur-sm">
+                  <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+                </div>
+                <div>
+                  <p className="text-3xl font-bold text-foreground tabular-nums">{stat.value}</p>
+                  <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
 
+        {/* Employees */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Employees</h2>
-            {activeAgents.length > 0 && (
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/dashboard/hire">
-                  <UserPlus className="h-3 w-3 mr-1" />
-                  Hire
-                </Link>
-              </Button>
-            )}
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-muted-foreground/60">Employees</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeAgents.map((agent, i) => (
@@ -116,37 +108,31 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: activeAgents.length * 0.05 }}
+                className="group relative overflow-hidden rounded-2xl border border-dashed border-border/50 hover:border-primary/30 bg-card/30 backdrop-blur-sm transition-all duration-300 cursor-pointer h-full min-h-[200px] flex flex-col items-center justify-center gap-3"
               >
-                <Card className="border-dashed hover:border-primary/30 hover:bg-primary/[0.02] transition-all cursor-pointer group h-full">
-                  <CardContent className="flex flex-col items-center justify-center gap-3 min-h-[200px]">
-                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <UserPlus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                    <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Hire Employee</p>
-                  </CardContent>
-                </Card>
+                <div className="h-12 w-12 rounded-2xl bg-muted/50 border border-border/50 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-all duration-300">
+                  <UserPlus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Hire Employee</p>
               </motion.div>
             </Link>
           </div>
         </section>
 
-        <Separator />
-
+        {/* Activity */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Recent Activity</h2>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/dashboard/audit">
-                View All
-                <ArrowRight className="h-3 w-3 ml-1" />
-              </Link>
-            </Button>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-muted-foreground/60">Recent Activity</h2>
+            <Link
+              href="/dashboard/audit"
+              className="text-[12px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+            >
+              View All <ArrowRight className="h-3 w-3" />
+            </Link>
           </div>
-          <Card>
-            <CardContent className="p-0">
-              <ActivityFeed activities={activity || []} />
-            </CardContent>
-          </Card>
+          <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <ActivityFeed activities={activity || []} />
+          </div>
         </section>
       </div>
     </div>

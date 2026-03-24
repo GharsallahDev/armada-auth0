@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Activity {
@@ -38,7 +37,7 @@ function formatActionType(actionType: string): string {
 export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (
     <ScrollArea className="h-[400px]">
-      <div className="divide-y divide-border">
+      <div className="divide-y divide-border/30">
         <AnimatePresence initial={false}>
           {activities.map((activity) => (
             <motion.div
@@ -47,24 +46,30 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/30 transition-colors"
+              className="flex items-center justify-between gap-4 px-5 py-3.5 hover:bg-muted/20 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <Badge variant="secondary" className="shrink-0">{activity.agentName}</Badge>
-                <span className="text-sm font-medium text-foreground truncate">{formatActionType(activity.actionType)}</span>
-                <Badge variant="outline" className="shrink-0 text-[10px]">{activity.service}</Badge>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary shrink-0">
+                  {activity.agentName}
+                </span>
+                <span className="text-[13px] font-medium text-foreground truncate">
+                  {formatActionType(activity.actionType)}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30 shrink-0">
+                  {activity.service}
+                </span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 {activity.trustPointsEarned > 0 && (
-                  <span className="text-xs font-medium text-emerald-400 tabular-nums">+{activity.trustPointsEarned}</span>
+                  <span className="text-[11px] font-bold text-emerald-400 tabular-nums">+{activity.trustPointsEarned}</span>
                 )}
-                <span className="text-xs text-muted-foreground tabular-nums">{formatRelativeTime(activity.createdAt)}</span>
+                <span className="text-[11px] text-muted-foreground tabular-nums">{formatRelativeTime(activity.createdAt)}</span>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
         {activities.length === 0 && (
-          <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
+          <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
             No activity yet. Chat with an employee to get started.
           </div>
         )}

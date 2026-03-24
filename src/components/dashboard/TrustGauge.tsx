@@ -14,11 +14,7 @@ interface TrustGaugeProps {
   agentName: string;
 }
 
-export function TrustGauge({
-  score,
-  level,
-  maxScore = 750,
-}: TrustGaugeProps) {
+export function TrustGauge({ score, level, maxScore = 750 }: TrustGaugeProps) {
   const color = TRUST_LEVEL_COLORS[level as TrustLevel] ?? "#ef4444";
   const levelName = TRUST_LEVEL_NAMES[level as TrustLevel] ?? "Unknown";
   const percentage = Math.min(score / maxScore, 1);
@@ -32,19 +28,14 @@ export function TrustGauge({
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="relative" style={{ width: size, height: size }}>
-        <svg
-          width={size}
-          height={size}
-          viewBox={`0 0 ${size} ${size}`}
-          className="-rotate-90"
-        >
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
           <circle
             cx={size / 2}
             cy={size / 2}
             r={radius}
             fill="none"
             stroke="currentColor"
-            className="text-white/[0.06]"
+            className="text-muted/30"
             strokeWidth={strokeWidth}
           />
           <motion.circle
@@ -74,10 +65,8 @@ export function TrustGauge({
         </div>
       </div>
       <div className="text-center">
-        <p className="text-[12px] font-medium text-neutral-300">
-          {score} / {maxScore} pts
-        </p>
-        <p className="text-[11px] text-neutral-500">{levelName}</p>
+        <p className="text-[12px] font-medium text-foreground">{score} / {maxScore} pts</p>
+        <p className="text-[11px] text-muted-foreground">{levelName}</p>
       </div>
     </div>
   );
