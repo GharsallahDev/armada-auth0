@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link, { LinkProps } from "next/link";
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -15,6 +15,8 @@ interface Links {
 interface SidebarContextProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  pinned: boolean;
+  setPinned: React.Dispatch<React.SetStateAction<boolean>>;
   animate: boolean;
 }
 
@@ -42,12 +44,18 @@ export const SidebarProvider = ({
   animate?: boolean;
 }) => {
   const [openState, setOpenState] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
+  // When pinned, always keep open
+  useEffect(() => {
+    if (pinned) setOpen(true);
+  }, [pinned, setOpen]);
+
   return (
-    <SidebarContext.Provider value={{ open, setOpen, animate }}>
+    <SidebarContext.Provider value={{ open: pinned ? true : open, setOpen, pinned, setPinned, animate: pinned ? false : animate }}>
       {children}
     </SidebarContext.Provider>
   );
@@ -85,18 +93,19 @@ export const DesktopSidebar = ({
   children,
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
+  const { open, setOpen, pinned, animate } = useSidebar();
   return (
     <motion.div
       className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col w-[300px] flex-shrink-0",
+        "h-full px-4 py-4 hidden md:flex md:flex-col flex-shrink-0",
         className
       )}
       animate={{
-        width: animate ? (open ? "300px" : "60px") : "300px",
+        width: animate ? (open ? "280px" : "60px") : pinned ? "280px" : (open ? "280px" : "60px"),
       }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      transition={{ duration: 0.2, ease: "easeInOut" }}
+      onMouseEnter={() => { if (!pinned) setOpen(true); }}
+      onMouseLeave={() => { if (!pinned) setOpen(false); }}
       {...props}
     >
       {children}

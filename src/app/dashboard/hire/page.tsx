@@ -21,7 +21,7 @@ export default function HirePage() {
   return (
     <div className="min-h-full">
       <div className="border-b border-border/50">
-        <div className="px-8 py-6 max-w-[1400px]">
+        <div className="px-8 py-6">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 border border-primary/20 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-primary" />

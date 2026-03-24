@@ -22,6 +22,10 @@ import {
   Bell,
   ListTodo,
   Command,
+  PanelLeftClose,
+  PanelLeft,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { TRUST_LEVEL_NAMES, type TrustLevel } from "@/lib/trust/levels";
 import { useState } from "react";
@@ -84,14 +88,14 @@ const LEVEL_DOT: Record<number, string> = {
 
 function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
   const pathname = usePathname();
-  const { open, animate } = useSidebar();
+  const { open, animate, pinned, setPinned } = useSidebar();
   const { data: agents } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 10000 });
   const { data: trustData } = useSWR<Record<string, { score: number; level: number; decayedScore: number }>>("/api/trust", fetcher, { refreshInterval: 10000 });
   const activeAgents = agents?.filter((a) => a.status === "active") || [];
 
   return (
     <div className="flex flex-col h-full">
-      {/* Logo */}
+      {/* Logo + Pin */}
       <div className={cn("flex items-center shrink-0 mb-5", open ? "gap-2.5 px-1" : "justify-center")}>
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <img src="/logo-192.png" alt="Armada" className="h-8 w-8 rounded-lg shrink-0" />
@@ -105,6 +109,20 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
             Armada
           </motion.span>
         </Link>
+        {open && (
+          <button
+            onClick={() => setPinned(!pinned)}
+            className={cn(
+              "ml-auto h-7 w-7 rounded-lg flex items-center justify-center transition-all duration-200 shrink-0",
+              pinned
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground/40 hover:text-muted-foreground hover:bg-white/[0.06]"
+            )}
+            title={pinned ? "Unpin sidebar" : "Pin sidebar open"}
+          >
+            {pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+          </button>
+        )}
       </div>
 
       {/* Categorized nav */}
