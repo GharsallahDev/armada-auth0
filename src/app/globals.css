@@ -66,6 +66,7 @@
     transform: translateY(0);
     }
   }
+  --color-destructive-foreground: var(--destructive-foreground)
 }
 
 :root {
@@ -103,6 +104,7 @@
   --sidebar-ring: oklch(0.5 0.233 264);
   --brand: hsl(266 100% 50%);
   --brand-foreground: hsl(270 100% 98%);
+  --destructive-foreground: oklch(1 0 0);
 }
 
 .dark {
@@ -139,6 +141,7 @@
   --sidebar-ring: oklch(0.585 0.233 264);
   --brand: hsl(266 70% 60%);
   --brand-foreground: hsl(270 100% 98%);
+  --destructive-foreground: oklch(1 0 0);
 }
 
 @layer base {

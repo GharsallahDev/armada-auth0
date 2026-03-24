@@ -2,12 +2,9 @@
 
 import useSWR from "swr";
 import { motion } from "framer-motion";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
 import {
   Shield, CheckCircle, XCircle, Clock, ScrollText, Activity,
+  ArrowUpRight, AlertTriangle, Zap,
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -22,36 +19,41 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-const AGENT_COLORS = [
-  "bg-indigo-500/10 text-indigo-400",
-  "bg-cyan-500/10 text-cyan-400",
-  "bg-emerald-500/10 text-emerald-400",
-  "bg-amber-500/10 text-amber-400",
-  "bg-rose-500/10 text-rose-400",
-  "bg-violet-500/10 text-violet-400",
-];
+const LEVEL_COLORS: Record<number, string> = {
+  0: "text-red-400 bg-red-500/10 border-red-500/20",
+  1: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+  2: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+  3: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+};
 
-function getAgentColor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return AGENT_COLORS[Math.abs(hash) % AGENT_COLORS.length];
+interface AuditLog {
+  id: string;
+  createdAt: string;
+  agentName: string;
+  action: string;
+  service: string;
+  actionType: string;
+  trustLevel: number;
+  cibaRequired: boolean;
+  cibaApproved: boolean | null;
+  success: boolean;
 }
 
 export default function AuditPage() {
-  const { data: logs } = useSWR("/api/audit?limit=100", fetcher, { refreshInterval: 5000 });
+  const { data: logs } = useSWR<AuditLog[]>("/api/audit?limit=100", fetcher, { refreshInterval: 5000 });
 
   const totalActions = logs?.length || 0;
-  const cibaActions = logs?.filter((l: { cibaRequired: boolean }) => l.cibaRequired).length || 0;
-  const cibaApproved = logs?.filter((l: { cibaRequired: boolean; cibaApproved: boolean }) => l.cibaRequired && l.cibaApproved).length || 0;
+  const cibaActions = logs?.filter((l) => l.cibaRequired).length || 0;
+  const cibaApproved = logs?.filter((l) => l.cibaRequired && l.cibaApproved).length || 0;
   const successRate = totalActions
-    ? Math.round((logs.filter((l: { success: boolean }) => l.success).length / totalActions) * 100)
+    ? Math.round((logs!.filter((l) => l.success).length / totalActions) * 100)
     : 0;
 
   const stats = [
-    { label: "Total Actions", value: totalActions, icon: Activity, color: "text-indigo-400", gradient: "from-indigo-500/20 to-violet-500/20", borderColor: "border-indigo-500/20" },
-    { label: "CIBA Requests", value: cibaActions, icon: Clock, color: "text-amber-400", gradient: "from-amber-500/20 to-orange-500/20", borderColor: "border-amber-500/20" },
-    { label: "CIBA Approved", value: cibaApproved, icon: CheckCircle, color: "text-emerald-400", gradient: "from-emerald-500/20 to-green-500/20", borderColor: "border-emerald-500/20" },
-    { label: "Success Rate", value: `${successRate}%`, icon: Shield, color: "text-blue-400", gradient: "from-blue-500/20 to-cyan-500/20", borderColor: "border-blue-500/20" },
+    { label: "Total Actions", value: totalActions, icon: Activity, color: "text-indigo-400", gradient: "from-indigo-500 to-violet-500", borderColor: "border-indigo-500/20" },
+    { label: "CIBA Requests", value: cibaActions, icon: Clock, color: "text-amber-400", gradient: "from-amber-500 to-orange-500", borderColor: "border-amber-500/20" },
+    { label: "CIBA Approved", value: cibaApproved, icon: CheckCircle, color: "text-emerald-400", gradient: "from-emerald-500 to-green-500", borderColor: "border-emerald-500/20" },
+    { label: "Success Rate", value: `${successRate}%`, icon: Shield, color: "text-blue-400", gradient: "from-blue-500 to-cyan-500", borderColor: "border-blue-500/20" },
   ];
 
   return (
@@ -79,7 +81,7 @@ export default function AuditPage() {
               transition={{ delay: i * 0.08 }}
               className={`group relative overflow-hidden rounded-2xl border ${stat.borderColor} bg-card/50 backdrop-blur-sm p-5 transition-all duration-300 hover:shadow-lg`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <div className={`absolute top-0 right-0 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-[0.05] -translate-y-6 translate-x-6 group-hover:opacity-10 transition-opacity duration-500`} />
               <div className="relative flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center">
                   <stat.icon className={`h-4 w-4 ${stat.color}`} />
@@ -93,71 +95,77 @@ export default function AuditPage() {
           ))}
         </div>
 
-        {/* Log Table */}
-        <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-          <ScrollArea className="h-[600px]">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border/30 hover:bg-transparent">
-                  <TableHead className="w-[100px] text-[11px]">Time</TableHead>
-                  <TableHead className="w-[100px] text-[11px]">Agent</TableHead>
-                  <TableHead className="text-[11px]">Action</TableHead>
-                  <TableHead className="w-[80px] text-[11px]">Service</TableHead>
-                  <TableHead className="w-[60px] text-[11px]">Trust</TableHead>
-                  <TableHead className="w-[60px] text-[11px]">CIBA</TableHead>
-                  <TableHead className="w-[60px] text-[11px]">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {logs?.map((log: {
-                  id: string; createdAt: string; agentName: string; action: string;
-                  service: string; actionType: string; trustLevel: number;
-                  cibaRequired: boolean; cibaApproved: boolean | null; success: boolean;
-                }) => (
-                  <TableRow key={log.id} className="border-border/20 hover:bg-muted/20">
-                    <TableCell className="text-[11px] text-muted-foreground tabular-nums">{timeAgo(log.createdAt)}</TableCell>
-                    <TableCell>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${getAgentColor(log.agentName)}`}>
-                        {log.agentName}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-[12px] font-mono text-foreground/80 truncate max-w-[200px]">{log.action}</TableCell>
-                    <TableCell>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">{log.service}</span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="text-[11px] font-bold text-muted-foreground">L{log.trustLevel}</span>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {log.cibaRequired ? (
-                        log.cibaApproved ? (
-                          <CheckCircle className="h-4 w-4 text-emerald-400 inline" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-400 inline" />
-                        )
-                      ) : (
-                        <span className="text-muted-foreground/40">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {log.success ? (
-                        <CheckCircle className="h-4 w-4 text-emerald-400 inline" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-400 inline" />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {(!logs || logs.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-16 text-muted-foreground">
-                      No agent actions yet. Chat with an employee to see the audit trail populate.
-                    </TableCell>
-                  </TableRow>
+        {/* Action Cards */}
+        <div className="space-y-2">
+          {logs?.map((log, i) => (
+            <motion.div
+              key={log.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(i * 0.02, 0.5) }}
+              className="group rounded-xl border border-border/30 bg-card/30 backdrop-blur-sm px-5 py-3.5 hover:bg-muted/20 hover:border-border/50 transition-all"
+            >
+              <div className="flex items-center gap-4">
+                {/* Status indicator */}
+                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
+                  log.success ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-red-500/10 border border-red-500/20"
+                }`}>
+                  {log.success ? (
+                    <Zap className="h-3.5 w-3.5 text-emerald-400" />
+                  ) : (
+                    <AlertTriangle className="h-3.5 w-3.5 text-red-400" />
+                  )}
+                </div>
+
+                {/* Main content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[13px] font-medium text-foreground truncate">{log.action}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] text-muted-foreground tabular-nums">{timeAgo(log.createdAt)}</span>
+                    <span className="text-border/50">·</span>
+                    <span className="text-[11px] font-semibold text-foreground/70">{log.agentName}</span>
+                    <span className="text-border/50">·</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">{log.service}</span>
+                  </div>
+                </div>
+
+                {/* Trust level */}
+                <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border shrink-0 ${LEVEL_COLORS[log.trustLevel] || LEVEL_COLORS[0]}`}>
+                  L{log.trustLevel}
+                </span>
+
+                {/* CIBA badge */}
+                {log.cibaRequired && (
+                  <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg border shrink-0 ${
+                    log.cibaApproved
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                      : "bg-red-500/10 text-red-400 border-red-500/20"
+                  }`}>
+                    {log.cibaApproved ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                    CIBA
+                  </div>
                 )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+
+                {/* Arrow */}
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors shrink-0" />
+              </div>
+            </motion.div>
+          ))}
+
+          {(!logs || logs.length === 0) && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-2xl border border-dashed border-border/50 bg-card/30 py-20 flex flex-col items-center justify-center gap-3"
+            >
+              <div className="h-12 w-12 rounded-2xl bg-muted/50 border border-border/50 flex items-center justify-center">
+                <ScrollText className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <p className="text-[13px] text-muted-foreground">No agent actions yet. Chat with an employee to see the audit trail populate.</p>
+            </motion.div>
+          )}
         </div>
       </div>
     </div>

@@ -11,6 +11,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SERVICE_DISPLAY } from "@/lib/trust/levels";
+import {
+  Stepper,
+  StepperItem,
+  StepperTrigger,
+  StepperIndicator,
+  StepperSeparator,
+  StepperTitle,
+  StepperNav,
+} from "@/components/ui/stepper";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
@@ -146,26 +155,51 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
     }
   }
 
-  const steps = ["Role", "Identity", "Tools", "Review"];
+  const steps = [
+    { label: "Role", description: "Choose template" },
+    { label: "Identity", description: "Name & configure" },
+    { label: "Tools", description: "Assign services" },
+    { label: "Review", description: "Confirm & hire" },
+  ];
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* Step indicator */}
-      <div className="flex items-center gap-2 mb-10">
-        {steps.map((label, i) => (
-          <div key={label} className="flex items-center gap-2 flex-1">
-            <div className={`h-8 w-8 rounded-xl flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-              i < step ? "bg-primary/20 text-primary border border-primary/30" : i === step ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" : "bg-muted/50 text-muted-foreground border border-border/50"
-            }`}>
-              {i < step ? <Check className="h-4 w-4" /> : i + 1}
-            </div>
-            <span className={`text-xs font-medium hidden sm:block ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-            {i < steps.length - 1 && (
-              <div className={`flex-1 h-px transition-colors duration-300 ${i < step ? "bg-primary/40" : "bg-border/50"}`} />
-            )}
-          </div>
-        ))}
-      </div>
+      {/* Premium Stepper */}
+      <Stepper value={step + 1} className="mb-10">
+        <StepperNav className="gap-0">
+          {steps.map((s, i) => (
+            <StepperItem key={s.label} step={i + 1} completed={i < step}>
+              <StepperTrigger
+                className="gap-3 px-2"
+                onClick={() => {
+                  if (i < step) setStep(i);
+                }}
+              >
+                <StepperIndicator
+                  className={`h-9 w-9 text-xs font-bold transition-all duration-300 ${
+                    i < step
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
+                      : i === step
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 ring-4 ring-primary/10"
+                      : "bg-muted/50 text-muted-foreground border border-border/50"
+                  }`}
+                >
+                  {i < step ? <Check className="h-4 w-4" /> : i + 1}
+                </StepperIndicator>
+                <div className="hidden sm:block text-left">
+                  <StepperTitle className={`text-[13px] ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>
+                    {s.label}
+                  </StepperTitle>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{s.description}</p>
+                </div>
+              </StepperTrigger>
+              {i < steps.length - 1 && (
+                <StepperSeparator className={`mx-2 ${i < step ? "bg-primary/40" : "bg-border/50"}`} />
+              )}
+            </StepperItem>
+          ))}
+        </StepperNav>
+      </Stepper>
 
       <AnimatePresence mode="wait">
         <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
@@ -205,10 +239,18 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
                 <h2 className="text-lg font-bold text-foreground mb-1">Employee Identity</h2>
                 <p className="text-sm text-muted-foreground mb-6">Name your employee and customize their role</p>
               </div>
+              {selectedTemplate && selectedTemplate !== "custom" && (
+                <div className="rounded-xl bg-primary/5 border border-primary/20 px-4 py-3 flex items-center gap-3 mb-2">
+                  <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                  <p className="text-[13px] text-foreground/80">
+                    Pre-filled from <span className="font-semibold text-primary">{ROLE_TEMPLATES.find(t => t.id === selectedTemplate)?.title}</span> template. Customize as needed.
+                  </p>
+                </div>
+              )}
               <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 space-y-5">
                 <div>
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Employee Name</label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Alex, Jordan, Atlas..." className="h-11 rounded-xl bg-muted/30 border-border/50" />
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Alex, Jordan, Atlas..." className="h-11 rounded-xl bg-muted/30 border-border/50" autoFocus />
                 </div>
                 <div>
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Role / Title</label>

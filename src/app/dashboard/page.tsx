@@ -3,9 +3,8 @@
 import useSWR from "swr";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { UserPlus, Users, TrendingUp, Activity, ArrowRight, Sparkles } from "lucide-react";
+import { UserPlus, Users, TrendingUp, Activity, Sparkles } from "lucide-react";
 import { AgentCard } from "@/components/dashboard/AgentCard";
-import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { KillSwitch } from "@/components/dashboard/KillSwitch";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -24,7 +23,7 @@ interface Agent {
 export default function DashboardPage() {
   const { data: agents } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 5000 });
   const { data: trustData, mutate: mutateTrust } = useSWR<Record<string, { score: number; level: number; decayedScore: number }>>("/api/trust", fetcher, { refreshInterval: 5000 });
-  const { data: activity } = useSWR("/api/audit?type=activity&limit=20", fetcher, { refreshInterval: 5000 });
+  const { data: activity } = useSWR("/api/audit?type=activity&limit=20", fetcher);
 
   const activeAgents = agents?.filter((a) => a.status === "active") || [];
   const avgTrust = activeAgents.length > 0
@@ -119,21 +118,6 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Activity */}
-        <section>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-[13px] font-semibold uppercase tracking-widest text-muted-foreground/60">Recent Activity</h2>
-            <Link
-              href="/dashboard/audit"
-              className="text-[12px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-            >
-              View All <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-            <ActivityFeed activities={activity || []} />
-          </div>
-        </section>
       </div>
     </div>
   );
