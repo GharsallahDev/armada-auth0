@@ -65,7 +65,7 @@ export default function PoliciesPage() {
   return (
     <div className="min-h-full">
       {/* Header */}
-      <div className="border-b border-border/50 px-8 py-6">
+      <div className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-5 lg:py-6">
         <div className=" flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20 flex items-center justify-center">
             <Shield className="h-5 w-5 text-violet-400" />
@@ -77,7 +77,7 @@ export default function PoliciesPage() {
         </div>
       </div>
 
-      <div className="px-8 py-8  space-y-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8  space-y-6">
         {/* Trust Level Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           {([0, 1, 2, 3] as const).map((level) => {

@@ -148,7 +148,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-full">
       {/* Header */}
-      <div className="border-b border-border/50 px-8 py-6">
+      <div className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-5 lg:py-6">
         <div className=" flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -178,7 +178,7 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div className="px-8 py-8  space-y-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8  space-y-6">
         {/* Filter Tabs */}
         <div className="flex items-center gap-1 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm p-1.5">
           {filterTabs.map((tab) => {

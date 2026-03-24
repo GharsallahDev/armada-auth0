@@ -160,7 +160,7 @@ export default function TasksPage() {
   return (
     <div className="min-h-full">
       {/* Header */}
-      <div className="border-b border-border/50 px-8 py-6">
+      <div className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-5 lg:py-6">
         <div className=" flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20 flex items-center justify-center">
             <ListTodo className="h-5 w-5 text-blue-400" />
@@ -172,7 +172,7 @@ export default function TasksPage() {
         </div>
       </div>
 
-      <div className="px-8 py-8  space-y-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8  space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[

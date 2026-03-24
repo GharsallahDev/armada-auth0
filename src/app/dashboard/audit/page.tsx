@@ -1,10 +1,11 @@
 "use client";
 
 import useSWR from "swr";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, CheckCircle, XCircle, Clock, ScrollText, Activity,
-  ArrowUpRight, AlertTriangle, Zap,
+  ArrowUpRight, AlertTriangle, Zap, Filter,
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -39,8 +40,11 @@ interface AuditLog {
   success: boolean;
 }
 
+type FilterType = "all" | "success" | "failed" | "ciba";
+
 export default function AuditPage() {
   const { data: logs } = useSWR<AuditLog[]>("/api/audit?limit=100", fetcher, { refreshInterval: 5000 });
+  const [filter, setFilter] = useState<FilterType>("all");
 
   const totalActions = logs?.length || 0;
   const cibaActions = logs?.filter((l) => l.cibaRequired).length || 0;
@@ -49,17 +53,36 @@ export default function AuditPage() {
     ? Math.round((logs!.filter((l) => l.success).length / totalActions) * 100)
     : 0;
 
+  const filtered = filter === "all" ? logs || [] :
+    filter === "success" ? (logs || []).filter((l) => l.success) :
+    filter === "failed" ? (logs || []).filter((l) => !l.success) :
+    (logs || []).filter((l) => l.cibaRequired);
+
+  const counts = {
+    all: totalActions,
+    success: (logs || []).filter((l) => l.success).length,
+    failed: (logs || []).filter((l) => !l.success).length,
+    ciba: cibaActions,
+  };
+
   const stats = [
-    { label: "Total Actions", value: totalActions, icon: Activity, color: "text-indigo-400", gradient: "from-indigo-500 to-violet-500", borderColor: "border-indigo-500/20" },
-    { label: "CIBA Requests", value: cibaActions, icon: Clock, color: "text-amber-400", gradient: "from-amber-500 to-orange-500", borderColor: "border-amber-500/20" },
-    { label: "CIBA Approved", value: cibaApproved, icon: CheckCircle, color: "text-emerald-400", gradient: "from-emerald-500 to-green-500", borderColor: "border-emerald-500/20" },
-    { label: "Success Rate", value: `${successRate}%`, icon: Shield, color: "text-blue-400", gradient: "from-blue-500 to-cyan-500", borderColor: "border-blue-500/20" },
+    { label: "Total Actions", value: totalActions, gradient: "from-indigo-500/20 to-violet-500/20", icon: Activity },
+    { label: "CIBA Requests", value: cibaActions, gradient: "from-amber-500/20 to-orange-500/20", icon: Clock },
+    { label: "CIBA Approved", value: cibaApproved, gradient: "from-emerald-500/20 to-green-500/20", icon: CheckCircle },
+    { label: "Success Rate", value: `${successRate}%`, gradient: "from-blue-500/20 to-cyan-500/20", icon: Shield },
+  ];
+
+  const filterTabs: { id: FilterType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: "all", label: "All", icon: ScrollText },
+    { id: "success", label: "Success", icon: CheckCircle },
+    { id: "failed", label: "Failed", icon: XCircle },
+    { id: "ciba", label: "CIBA", icon: Shield },
   ];
 
   return (
     <div className="min-h-full">
-      <div className="border-b border-border/50 px-8 py-6">
-        <div className=" flex items-center gap-3">
+      <div className="border-b border-border/50 px-4 sm:px-6 lg:px-8 py-5 lg:py-6">
+        <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-violet-500/20 border border-primary/20 flex items-center justify-center">
             <ScrollText className="h-5 w-5 text-primary" />
           </div>
@@ -70,108 +93,142 @@ export default function AuditPage() {
         </div>
       </div>
 
-      <div className="px-8 py-8  space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        {/* Stats — same style as Tasks/Approvals */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: i * 0.06 }}
               className="relative group"
             >
-              {/* Gradient border */}
-              <div className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${stat.gradient} opacity-60 group-hover:opacity-100 transition-opacity duration-500`} />
-              <div className={`absolute -inset-2 rounded-3xl bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-40 blur-xl transition-all duration-700`} />
-
-              <div className="relative overflow-hidden rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-xl p-5 transition-all duration-300">
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" />
-                <div className={`absolute top-0 right-0 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-[0.08] -translate-y-6 translate-x-6 group-hover:opacity-20 transition-opacity duration-500`} />
-
-                <div className="relative flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${stat.gradient} border border-white/10 flex items-center justify-center`}>
-                    <stat.icon className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
-                    <p className="text-[11px] text-muted-foreground">{stat.label}</p>
-                  </div>
+              <div className={`absolute -inset-px rounded-2xl bg-gradient-to-br ${stat.gradient} opacity-40 group-hover:opacity-70 transition-opacity duration-500`} />
+              <div className="relative rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-xl p-4 flex items-center gap-3">
+                <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${stat.gradient} border border-white/10 flex items-center justify-center`}>
+                  <stat.icon className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-xl font-bold text-foreground tabular-nums">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{stat.label}</p>
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
 
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-1 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm p-1.5">
+          {filterTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = filter === tab.id;
+            const count = counts[tab.id];
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setFilter(tab.id)}
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-300 ${
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="audit-tab-bg"
+                    className="absolute inset-0 rounded-xl bg-primary/10 border border-primary/20"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                  />
+                )}
+                <span className="relative flex items-center gap-2">
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                  {count > 0 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/50 border border-border/30 tabular-nums">
+                      {count}
+                    </span>
+                  )}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Action Cards */}
         <div className="space-y-2">
-          {logs?.map((log, i) => (
-            <motion.div
-              key={log.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: Math.min(i * 0.02, 0.5) }}
-              className="group rounded-xl border border-border/30 bg-card/30 backdrop-blur-sm px-5 py-3.5 hover:bg-muted/20 hover:border-border/50 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                {/* Status indicator */}
-                <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  log.success ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-red-500/10 border border-red-500/20"
-                }`}>
-                  {log.success ? (
-                    <Zap className="h-3.5 w-3.5 text-emerald-400" />
-                  ) : (
-                    <AlertTriangle className="h-3.5 w-3.5 text-red-400" />
+          <AnimatePresence mode="popLayout">
+            {filtered.map((log, i) => (
+              <motion.div
+                key={log.id}
+                layout
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                className={`group rounded-xl border bg-card/30 backdrop-blur-sm px-5 py-4 hover:bg-muted/20 transition-all ${
+                  !log.success ? "border-red-500/20" : log.cibaRequired ? "border-amber-500/20" : "border-border/30"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  {/* Status indicator */}
+                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    log.success ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-red-500/10 border border-red-500/20"
+                  }`}>
+                    {log.success ? (
+                      <Zap className="h-4 w-4 text-emerald-400" />
+                    ) : (
+                      <AlertTriangle className="h-4 w-4 text-red-400" />
+                    )}
+                  </div>
+
+                  {/* Main content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[13px] font-semibold text-foreground truncate">{log.action}</span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] text-muted-foreground tabular-nums">{timeAgo(log.createdAt)}</span>
+                      <span className="text-border/50">·</span>
+                      <span className="text-[11px] font-medium text-foreground/80">{log.agentName}</span>
+                      <span className="text-border/50">·</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30 capitalize">{log.service}</span>
+                    </div>
+                  </div>
+
+                  {/* Trust level */}
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border shrink-0 ${LEVEL_COLORS[log.trustLevel] || LEVEL_COLORS[0]}`}>
+                    L{log.trustLevel}
+                  </span>
+
+                  {/* CIBA badge */}
+                  {log.cibaRequired && (
+                    <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg border shrink-0 ${
+                      log.cibaApproved
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-red-500/10 text-red-400 border-red-500/20"
+                    }`}>
+                      {log.cibaApproved ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                      CIBA
+                    </div>
                   )}
                 </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
-                {/* Main content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[13px] font-medium text-foreground truncate">{log.action}</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[11px] text-muted-foreground tabular-nums">{timeAgo(log.createdAt)}</span>
-                    <span className="text-border/50">·</span>
-                    <span className="text-[11px] font-semibold text-foreground/70">{log.agentName}</span>
-                    <span className="text-border/50">·</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">{log.service}</span>
-                  </div>
-                </div>
-
-                {/* Trust level */}
-                <span className={`text-[10px] font-bold px-2 py-1 rounded-lg border shrink-0 ${LEVEL_COLORS[log.trustLevel] || LEVEL_COLORS[0]}`}>
-                  L{log.trustLevel}
-                </span>
-
-                {/* CIBA badge */}
-                {log.cibaRequired && (
-                  <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-lg border shrink-0 ${
-                    log.cibaApproved
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                      : "bg-red-500/10 text-red-400 border-red-500/20"
-                  }`}>
-                    {log.cibaApproved ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-                    CIBA
-                  </div>
-                )}
-
-                {/* Arrow */}
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors shrink-0" />
-              </div>
-            </motion.div>
-          ))}
-
-          {(!logs || logs.length === 0) && (
+          {filtered.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="rounded-2xl border border-dashed border-border/50 bg-card/30 py-20 flex flex-col items-center justify-center gap-3"
+              className="rounded-2xl border border-dashed border-border/50 bg-card/30 py-16 flex flex-col items-center justify-center gap-3"
             >
               <div className="h-12 w-12 rounded-2xl bg-muted/50 border border-border/50 flex items-center justify-center">
                 <ScrollText className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="text-[13px] text-muted-foreground">No agent actions yet. Chat with an employee to see the audit trail populate.</p>
+              <p className="text-[13px] text-muted-foreground">
+                {filter === "failed" ? "No failed actions. Your workforce is performing well." :
+                 filter === "ciba" ? "No CIBA requests yet." :
+                 "No agent actions yet. Chat with an employee to see the audit trail populate."}
+              </p>
             </motion.div>
           )}
         </div>

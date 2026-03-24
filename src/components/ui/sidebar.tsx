@@ -123,13 +123,17 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-[#0a0a14]/80 backdrop-blur-2xl w-full"
+          "h-14 px-4 flex flex-row md:hidden items-center justify-between bg-[#0a0a14]/90 backdrop-blur-2xl w-full border-b border-white/[0.08]"
         )}
         {...props}
       >
-        <div className="flex justify-end z-20 w-full">
+        <div className="flex items-center gap-2">
+          <img src="/logo-192.png" alt="Armada" className="h-7 w-7 rounded-md" />
+          <span className="text-[14px] font-bold text-foreground">Armada</span>
+        </div>
+        <div className="z-20">
           <Menu
-            className="text-foreground cursor-pointer"
+            className="text-foreground/80 cursor-pointer h-5 w-5"
             onClick={() => setOpen(!open)}
           />
         </div>
@@ -144,15 +148,15 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-background p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full w-full inset-0 bg-[#0a0a14] p-6 pt-5 z-[100] flex flex-col",
                 className
               )}
             >
               <div
-                className="absolute right-10 top-10 z-50 text-foreground cursor-pointer"
+                className="absolute right-5 top-5 z-50 text-foreground/80 cursor-pointer h-9 w-9 rounded-lg flex items-center justify-center hover:bg-white/[0.08] transition-colors"
                 onClick={() => setOpen(!open)}
               >
-                <X />
+                <X className="h-5 w-5" />
               </div>
               {children}
             </motion.div>

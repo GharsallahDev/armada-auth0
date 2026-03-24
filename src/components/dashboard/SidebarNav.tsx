@@ -116,7 +116,7 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
               "ml-auto h-7 w-7 rounded-lg flex items-center justify-center transition-all duration-200 shrink-0",
               pinned
                 ? "bg-primary/15 text-primary"
-                : "text-muted-foreground/40 hover:text-muted-foreground hover:bg-white/[0.06]"
+                : "text-muted-foreground/70 hover:text-muted-foreground hover:bg-white/[0.06]"
             )}
             title={pinned ? "Unpin sidebar" : "Pin sidebar open"}
           >
@@ -137,7 +137,7 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
               }}
               className="px-3 mb-1.5"
             >
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 whitespace-pre">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70 whitespace-pre">
                 {category.label}
               </span>
             </motion.div>
@@ -153,8 +153,8 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
                       "relative flex items-center gap-3 rounded-xl py-2 transition-all duration-200",
                       open ? "px-3" : "px-0 justify-center",
                       isActive
-                        ? "bg-white/[0.08] text-foreground shadow-sm"
-                        : "text-muted-foreground/70 hover:text-foreground hover:bg-white/[0.04]"
+                        ? "bg-white/[0.1] text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]"
                     )}
                   >
                     {isActive && (
@@ -191,7 +191,7 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
               }}
               className="px-3 mb-1.5"
             >
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/40 whitespace-pre">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70 whitespace-pre">
                 Employees
               </span>
             </motion.div>
@@ -216,8 +216,8 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
                       "relative flex items-center gap-2.5 rounded-xl transition-all duration-200",
                       open ? "px-3 py-2" : "px-0 py-2 justify-center",
                       isActive
-                        ? "bg-white/[0.08] text-foreground"
-                        : "text-muted-foreground/70 hover:text-foreground hover:bg-white/[0.04]"
+                        ? "bg-white/[0.1] text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/[0.06]"
                     )}
                   >
                     <div className="relative shrink-0">
@@ -240,7 +240,7 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
                     >
                       <p className="text-[12px] font-medium truncate">{agent.name}</p>
                       {levelName && (
-                        <p className="text-[10px] text-muted-foreground/50 truncate">{levelName}</p>
+                        <p className="text-[10px] text-muted-foreground/80 truncate">{levelName}</p>
                       )}
                     </motion.div>
                   </Link>
@@ -257,17 +257,17 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
           display: animate ? (open ? "flex" : "none") : "flex",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="items-center gap-2 px-3 py-2 mb-2 rounded-xl bg-white/[0.04] border border-white/[0.06]"
+        className="items-center gap-2 px-3 py-2 mb-2 rounded-xl bg-white/[0.06] border border-white/[0.1]"
       >
-        <Command className="h-3 w-3 text-muted-foreground/50 shrink-0" />
-        <span className="text-[11px] text-muted-foreground/40 whitespace-pre">Press </span>
-        <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-muted-foreground/50 border border-white/[0.08] font-mono">
+        <Command className="h-3 w-3 text-muted-foreground/80 shrink-0" />
+        <span className="text-[11px] text-muted-foreground/70 whitespace-pre">Press </span>
+        <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-muted-foreground/80 border border-white/[0.08] font-mono">
           ⌘K
         </kbd>
       </motion.div>
 
       {/* User section */}
-      <div className="pt-3 border-t border-white/[0.06] space-y-2">
+      <div className="pt-3 border-t border-white/[0.1] space-y-2">
         <div className={cn("flex items-center", open ? "gap-2.5 px-1" : "justify-center")}>
           <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/10 flex items-center justify-center text-[11px] font-bold text-white/90 shrink-0">
             {userInitial}
@@ -280,14 +280,14 @@ function SidebarContent({ userInitial, userName, userEmail }: SidebarNavProps) {
             className="flex-1 min-w-0 whitespace-pre"
           >
             <p className="text-[12px] font-medium text-foreground/90 truncate">{userName}</p>
-            <p className="text-[10px] text-muted-foreground/50 truncate">{userEmail}</p>
+            <p className="text-[10px] text-muted-foreground/80 truncate">{userEmail}</p>
           </motion.div>
         </div>
         <div className={cn("flex items-center", open ? "gap-1 px-1" : "flex-col gap-1 items-center")}>
           <a
             href="/auth/logout"
             className={cn(
-              "flex items-center gap-2 rounded-lg text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.04] transition-colors",
+              "flex items-center gap-2 rounded-lg text-muted-foreground/80 hover:text-foreground hover:bg-white/[0.06] transition-colors",
               open ? "flex-1 px-2 py-1.5 text-[12px]" : "h-8 w-8 justify-center"
             )}
           >
@@ -315,7 +315,7 @@ export function SidebarNav({ userInitial, userName, userEmail }: SidebarNavProps
   return (
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody
-        className="border-r border-white/[0.06] bg-[#0a0a14]/80 backdrop-blur-2xl"
+        className="border-r border-white/[0.1] bg-[#0a0a14]/80 backdrop-blur-2xl"
         style={{ overflow: "hidden" }}
       >
         <SidebarContent
