@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import {
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
-  ArrowRight, ArrowLeft, Sparkles, Check, Loader2,
+  ArrowRight, ArrowLeft, Sparkles, Check, Loader2, Search, ChevronDown,
   Code, BarChart3, Paintbrush, Headphones, Megaphone, FileText,
+  Database, ShieldCheck, Workflow, Bot, BrainCircuit, GraduationCap,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -85,6 +87,56 @@ const ROLE_TEMPLATES = [
     defaultServices: ["gmail", "calendar", "discord", "slack"],
   },
   {
+    id: "devops",
+    icon: Workflow,
+    title: "DevOps Engineer",
+    role: "DevOps Engineer",
+    gradient: "from-teal-500 to-cyan-600",
+    description: "CI/CD pipelines, deployments, infrastructure automation",
+    instructions: "You are a DevOps engineer. Manage GitHub repositories, automate CI/CD pipelines, monitor deployments, and handle infrastructure tasks. Prioritize reliability and automation.",
+    defaultServices: ["github", "slack"],
+  },
+  {
+    id: "data",
+    icon: Database,
+    title: "Data Analyst",
+    role: "Data Analyst",
+    gradient: "from-violet-500 to-purple-600",
+    description: "Data extraction, reporting, spreadsheet management",
+    instructions: "You are a data analyst. Extract data from connected services, create reports, manage spreadsheets in Drive, and provide data-driven insights. Be precise and thorough with numbers.",
+    defaultServices: ["drive", "gmail", "slack"],
+  },
+  {
+    id: "compliance",
+    icon: ShieldCheck,
+    title: "Compliance Officer",
+    role: "Compliance & Security Officer",
+    gradient: "from-red-500 to-rose-600",
+    description: "Audit reviews, policy enforcement, security monitoring",
+    instructions: "You are a compliance officer. Monitor agent activities, review audit logs, enforce security policies, and flag suspicious behaviors. Always prioritize security and compliance.",
+    defaultServices: ["gmail", "slack"],
+  },
+  {
+    id: "researcher",
+    icon: BrainCircuit,
+    title: "Research Assistant",
+    role: "Research Assistant",
+    gradient: "from-sky-500 to-blue-600",
+    description: "Information gathering, summarization, knowledge management",
+    instructions: "You are a research assistant. Gather information from various sources, summarize findings, organize knowledge, and support decision-making with well-researched insights.",
+    defaultServices: ["gmail", "drive", "slack"],
+  },
+  {
+    id: "onboarding",
+    icon: GraduationCap,
+    title: "Onboarding Specialist",
+    role: "Onboarding Specialist",
+    gradient: "from-lime-500 to-green-600",
+    description: "New hire setup, training workflows, documentation",
+    instructions: "You are an onboarding specialist. Help set up new team members, manage onboarding workflows, send welcome emails, schedule orientation meetings, and maintain training documentation.",
+    defaultServices: ["gmail", "calendar", "slack"],
+  },
+  {
     id: "custom",
     icon: FileText,
     title: "Custom Role",
@@ -94,6 +146,24 @@ const ROLE_TEMPLATES = [
     instructions: "",
     defaultServices: [],
   },
+];
+
+const ROLE_SUGGESTIONS = [
+  { label: "Software Engineer", icon: Code, color: "text-indigo-400" },
+  { label: "Business Analyst", icon: BarChart3, color: "text-emerald-400" },
+  { label: "Design Coordinator", icon: Paintbrush, color: "text-pink-400" },
+  { label: "Customer Support Representative", icon: Headphones, color: "text-amber-400" },
+  { label: "Marketing Manager", icon: Megaphone, color: "text-cyan-400" },
+  { label: "DevOps Engineer", icon: Workflow, color: "text-teal-400" },
+  { label: "Data Analyst", icon: Database, color: "text-violet-400" },
+  { label: "Compliance & Security Officer", icon: ShieldCheck, color: "text-red-400" },
+  { label: "Research Assistant", icon: BrainCircuit, color: "text-sky-400" },
+  { label: "Onboarding Specialist", icon: GraduationCap, color: "text-lime-400" },
+  { label: "Project Manager", icon: Workflow, color: "text-orange-400" },
+  { label: "Sales Development Rep", icon: Megaphone, color: "text-blue-400" },
+  { label: "Community Manager", icon: MessageCircle, color: "text-purple-400" },
+  { label: "Content Writer", icon: FileText, color: "text-rose-400" },
+  { label: "QA Engineer", icon: ShieldCheck, color: "text-green-400" },
 ];
 
 interface HireWizardProps {
@@ -110,6 +180,8 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
   const [role, setRole] = useState("");
   const [instructions, setInstructions] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [roleSearch, setRoleSearch] = useState("");
 
   const connectedServices = connectedProviders.flatMap((p) => PROVIDER_TO_SERVICES[p] || []);
   const allServices = Object.keys(SERVICE_DISPLAY);
@@ -208,7 +280,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
             <div>
               <h2 className="text-lg font-bold text-foreground mb-1">Choose a Role</h2>
               <p className="text-sm text-muted-foreground mb-6">Start from a template or create a custom role</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1 scrollbar-none">
                 {ROLE_TEMPLATES.map((template) => {
                   const Icon = template.icon;
                   return (
@@ -252,9 +324,106 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Employee Name</label>
                   <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Alex, Jordan, Atlas..." className="h-11 rounded-xl bg-muted/30 border-border/50" autoFocus />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Role / Title</label>
-                  <Input value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Sales Development, Community Manager..." className="h-11 rounded-xl bg-muted/30 border-border/50" />
+                  <div className="relative">
+                    <div
+                      className={cn(
+                        "flex items-center h-11 rounded-xl border transition-all duration-200 cursor-text",
+                        roleDropdownOpen
+                          ? "border-primary/40 ring-2 ring-primary/10 bg-background"
+                          : "border-border/50 bg-muted/30 hover:border-border"
+                      )}
+                      onClick={() => setRoleDropdownOpen(true)}
+                    >
+                      <Search className="h-3.5 w-3.5 text-muted-foreground/50 ml-3 shrink-0" />
+                      <input
+                        value={roleDropdownOpen ? roleSearch : role}
+                        onChange={(e) => {
+                          setRoleSearch(e.target.value);
+                          setRole(e.target.value);
+                        }}
+                        onFocus={() => {
+                          setRoleDropdownOpen(true);
+                          setRoleSearch(role);
+                        }}
+                        onBlur={() => setTimeout(() => setRoleDropdownOpen(false), 200)}
+                        placeholder="Search roles or type custom..."
+                        className="flex-1 h-full bg-transparent border-none outline-none text-sm px-2 placeholder:text-muted-foreground/40"
+                      />
+                      <ChevronDown className={cn(
+                        "h-3.5 w-3.5 text-muted-foreground/50 mr-3 shrink-0 transition-transform duration-200",
+                        roleDropdownOpen && "rotate-180"
+                      )} />
+                    </div>
+                    <AnimatePresence>
+                      {roleDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4, height: 0 }}
+                          animate={{ opacity: 1, y: 0, height: "auto" }}
+                          exit={{ opacity: 0, y: -4, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute z-20 top-full left-0 right-0 mt-1.5 rounded-xl border border-border/50 bg-card/95 dark:bg-card/98 backdrop-blur-xl shadow-xl shadow-black/10 overflow-hidden"
+                        >
+                          <div className="max-h-[220px] overflow-y-auto py-1.5 px-1.5">
+                            {ROLE_SUGGESTIONS
+                              .filter((r) => !roleSearch || r.label.toLowerCase().includes(roleSearch.toLowerCase()))
+                              .map((suggestion) => {
+                                const Icon = suggestion.icon;
+                                const isSelected = role === suggestion.label;
+                                return (
+                                  <button
+                                    key={suggestion.label}
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      setRole(suggestion.label);
+                                      setRoleSearch(suggestion.label);
+                                      setRoleDropdownOpen(false);
+                                    }}
+                                    className={cn(
+                                      "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors",
+                                      isSelected
+                                        ? "bg-primary/10 text-foreground"
+                                        : "text-muted-foreground hover:bg-muted/40 dark:hover:bg-white/[0.06] hover:text-foreground"
+                                    )}
+                                  >
+                                    <div className={cn(
+                                      "h-7 w-7 rounded-lg flex items-center justify-center shrink-0",
+                                      isSelected ? "bg-primary/15" : "bg-muted/40 dark:bg-white/[0.06]"
+                                    )}>
+                                      <Icon className={cn("h-3.5 w-3.5", isSelected ? "text-primary" : suggestion.color)} />
+                                    </div>
+                                    <span className="text-[13px] font-medium">{suggestion.label}</span>
+                                    {isSelected && <Check className="h-3.5 w-3.5 text-primary ml-auto shrink-0" />}
+                                  </button>
+                                );
+                              })}
+                            {roleSearch && !ROLE_SUGGESTIONS.some((r) => r.label.toLowerCase() === roleSearch.toLowerCase()) && (
+                              <button
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  setRole(roleSearch);
+                                  setRoleDropdownOpen(false);
+                                }}
+                                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left text-muted-foreground hover:bg-muted/40 dark:hover:bg-white/[0.06] hover:text-foreground transition-colors"
+                              >
+                                <div className="h-7 w-7 rounded-lg bg-muted/40 dark:bg-white/[0.06] flex items-center justify-center shrink-0">
+                                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                                </div>
+                                <span className="text-[13px] font-medium">Use &ldquo;{roleSearch}&rdquo; as custom role</span>
+                              </button>
+                            )}
+                          </div>
+                          <div className="px-3 py-2 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground/50">
+                            <span>Type to filter or create custom</span>
+                            <span>ESC to close</span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Instructions</label>

@@ -66,10 +66,10 @@ export default function AuditPage() {
   };
 
   const stats = [
-    { label: "Total Actions", value: totalActions, gradient: "from-indigo-500/20 to-violet-500/20", icon: Activity },
-    { label: "CIBA Requests", value: cibaActions, gradient: "from-amber-500/20 to-orange-500/20", icon: Clock },
-    { label: "CIBA Approved", value: cibaApproved, gradient: "from-emerald-500/20 to-green-500/20", icon: CheckCircle },
-    { label: "Success Rate", value: `${successRate}%`, gradient: "from-blue-500/20 to-cyan-500/20", icon: Shield },
+    { label: "Total Actions", value: totalActions, gradient: "from-indigo-500 to-violet-500", icon: Activity },
+    { label: "CIBA Requests", value: cibaActions, gradient: "from-amber-500 to-orange-500", icon: Clock },
+    { label: "CIBA Approved", value: cibaApproved, gradient: "from-emerald-500 to-green-500", icon: CheckCircle },
+    { label: "Success Rate", value: `${successRate}%`, gradient: "from-blue-500 to-cyan-500", icon: Shield },
   ];
 
   const filterTabs: { id: FilterType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [

@@ -98,7 +98,7 @@ export default function SettingsPage() {
         )}
 
         {/* Tab Navigation */}
-        <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm p-1.5">
+        <div className="grid grid-cols-3 gap-1 rounded-2xl border border-border/50 bg-card/30 backdrop-blur-sm p-1.5 w-full">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -183,7 +183,7 @@ export default function SettingsPage() {
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden"
                           >
-                            <div className="px-3 pb-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="px-3 pb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                               {connectionsInCat.map((connection) => (
                                 <ConnectionCard
                                   key={connection.id}

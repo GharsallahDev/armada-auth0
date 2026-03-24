@@ -285,14 +285,26 @@ export default function AnalyticsPage() {
                 </div>
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="h-[80px]">
-                <MiniLineChart data={hourlyActions} color="#818cf8" height={80} />
+            {totalActions > 0 ? (
+              <div className="space-y-3">
+                <div className="h-[80px]">
+                  <MiniLineChart data={hourlyActions} color="#818cf8" height={80} />
+                </div>
+                <div className="h-[60px]">
+                  <MiniBarChart data={hourlySuccess} color="#34d399" height={60} />
+                </div>
               </div>
-              <div className="h-[60px]">
-                <MiniBarChart data={hourlySuccess} color="#34d399" height={60} />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-indigo-400/60" />
+                </div>
+                <div className="text-center">
+                  <p className="text-[13px] font-medium text-muted-foreground">No activity yet</p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-0.5">Actions will appear here as your employees work</p>
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
 
           {/* Trust Level Distribution */}
@@ -359,7 +371,15 @@ export default function AnalyticsPage() {
                   </div>
                 );
               }) : (
-                <p className="text-[12px] text-muted-foreground text-center py-4">No service data yet</p>
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 flex items-center justify-center">
+                    <BarChart3 className="h-4.5 w-4.5 text-indigo-400/60" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[12px] font-medium text-muted-foreground">No services used yet</p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-0.5">Service usage will appear as employees take actions</p>
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>
@@ -403,7 +423,15 @@ export default function AnalyticsPage() {
                   </div>
                 );
               }) : (
-                <p className="text-[12px] text-muted-foreground text-center py-4">No employees yet</p>
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <Users className="h-4.5 w-4.5 text-emerald-400/60" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[12px] font-medium text-muted-foreground">No employees yet</p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-0.5">Hire your first employee to see performance data</p>
+                  </div>
+                </div>
               )}
             </div>
           </motion.div>
