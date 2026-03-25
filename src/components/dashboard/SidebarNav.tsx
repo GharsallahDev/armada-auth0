@@ -21,6 +21,7 @@ import {
   Shield,
   Bell,
   ListTodo,
+  MessageSquare,
   Search,
   PanelLeftClose,
   PanelLeft,
@@ -46,6 +47,7 @@ const navCategories = [
     items: [
       { href: "/dashboard/tasks", label: "Tasks", icon: ListTodo },
       { href: "/dashboard/approvals", label: "Approvals", icon: Smartphone },
+      { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
       { href: "/dashboard/audit", label: "Audit Trail", icon: ScrollText },
     ],
   },

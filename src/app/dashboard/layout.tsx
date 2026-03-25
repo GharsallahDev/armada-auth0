@@ -4,6 +4,7 @@ import { auth0 } from "@/lib/auth0";
 import { redirect } from "next/navigation";
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
+import { MorphPanel } from "@/components/dashboard/MorphPanel";
 
 export default async function DashboardLayout({
   children,
@@ -25,6 +26,7 @@ export default async function DashboardLayout({
       />
       <main className="flex-1 overflow-auto">{children}</main>
       <CommandPalette />
+      <MorphPanel />
     </div>
   );
 }
