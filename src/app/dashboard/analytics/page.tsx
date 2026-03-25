@@ -316,26 +316,40 @@ export default function AnalyticsPage() {
           >
             <h3 className="text-[14px] font-semibold text-foreground mb-1">Trust Distribution</h3>
             <p className="text-[11px] text-muted-foreground mb-5">Employees by trust level</p>
-            <div className="flex justify-center mb-5">
-              <DonutChart
-                segments={levelDistribution.map((l) => ({
-                  value: l.count,
-                  color: l.color,
-                  label: l.label,
-                }))}
-              />
-            </div>
-            <div className="space-y-2">
-              {levelDistribution.map((l) => (
-                <div key={l.level} className="flex items-center justify-between text-[12px]">
-                  <div className="flex items-center gap-2">
-                    <div className={`h-2.5 w-2.5 rounded-full ${LEVEL_BG[l.level]}`} />
-                    <span className="text-foreground/80">L{l.level} {l.label}</span>
-                  </div>
-                  <span className="font-bold text-foreground tabular-nums">{l.count}</span>
+            {activeAgents.length > 0 ? (
+              <>
+                <div className="flex justify-center mb-5">
+                  <DonutChart
+                    segments={levelDistribution.map((l) => ({
+                      value: l.count,
+                      color: l.color,
+                      label: l.label,
+                    }))}
+                  />
                 </div>
-              ))}
-            </div>
+                <div className="space-y-2">
+                  {levelDistribution.map((l) => (
+                    <div key={l.level} className="flex items-center justify-between text-[12px]">
+                      <div className="flex items-center gap-2">
+                        <div className={`h-2.5 w-2.5 rounded-full ${LEVEL_BG[l.level]}`} />
+                        <span className="text-foreground/80">L{l.level} {l.label}</span>
+                      </div>
+                      <span className="font-bold text-foreground tabular-nums">{l.count}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-emerald-400/60" />
+                </div>
+                <div className="text-center">
+                  <p className="text-[13px] font-medium text-muted-foreground">No trust data yet</p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-0.5">Hire employees to see trust distribution</p>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 

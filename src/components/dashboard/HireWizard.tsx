@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import {
   ArrowRight, ArrowLeft, Sparkles, Check, Loader2, Search, ChevronDown,
   Code, BarChart3, Paintbrush, Headphones, Megaphone, FileText,
   Database, ShieldCheck, Workflow, Bot, BrainCircuit, GraduationCap,
+  Dices, RefreshCw, User,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +35,27 @@ const PROVIDER_TO_SERVICES: Record<string, string[]> = {
   github: ["github"],
   discord: ["discord"],
 };
+
+const RANDOM_NAMES = [
+  "Atlas", "Nova", "Orion", "Sage", "Kai", "Echo", "Lyra", "Phoenix",
+  "Aria", "Zephyr", "Cleo", "Dash", "Ember", "Flux", "Ivy", "Juno",
+  "Luna", "Milo", "Neo", "Onyx", "Pixel", "Quinn", "Raven", "Silo",
+  "Titan", "Vega", "Wren", "Xena", "Yuri", "Zen", "Axel", "Blaze",
+  "Cipher", "Drift", "Eos", "Finn", "Glitch", "Halo", "Ion", "Jade",
+];
+
+// DiceBear avatar styles to cycle through
+const AVATAR_STYLES = [
+  "bottts", "bottts-neutral", "shapes", "identicon", "thumbs", "fun-emoji", "adventurer-neutral", "avataaars-neutral",
+];
+
+function getAvatarUrl(seed: string, style: string) {
+  return `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&size=128&backgroundColor=transparent`;
+}
+
+function generateRandomName() {
+  return RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
+}
 
 const ROLE_TEMPLATES = [
   {
@@ -182,9 +204,14 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [roleSearch, setRoleSearch] = useState("");
+  const [avatarStyle, setAvatarStyle] = useState(AVATAR_STYLES[0]);
+  const [avatarSeed, setAvatarSeed] = useState(() => Math.random().toString(36).slice(2));
+  const [isGeneratingName, setIsGeneratingName] = useState(false);
 
   const connectedServices = connectedProviders.flatMap((p) => PROVIDER_TO_SERVICES[p] || []);
   const allServices = Object.keys(SERVICE_DISPLAY);
+
+  const avatarUrl = getAvatarUrl(avatarSeed + name, avatarStyle);
 
   function selectTemplate(templateId: string) {
     const template = ROLE_TEMPLATES.find((t) => t.id === templateId);
@@ -204,6 +231,27 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
     if (step === 1) return name.trim() && role.trim() && instructions.trim();
     if (step === 2) return selectedServices.length > 0;
     return true;
+  }
+
+  const handleRandomName = useCallback(() => {
+    setIsGeneratingName(true);
+    // Quick shuffle animation
+    let count = 0;
+    const interval = setInterval(() => {
+      setName(generateRandomName());
+      count++;
+      if (count >= 6) {
+        clearInterval(interval);
+        setIsGeneratingName(false);
+      }
+    }, 60);
+  }, []);
+
+  function regenerateAvatar() {
+    const currentIdx = AVATAR_STYLES.indexOf(avatarStyle);
+    const nextIdx = (currentIdx + 1) % AVATAR_STYLES.length;
+    setAvatarStyle(AVATAR_STYLES[nextIdx]);
+    setAvatarSeed(Math.random().toString(36).slice(2));
   }
 
   async function handleSubmit() {
@@ -235,7 +283,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
       {/* Premium Stepper */}
       <Stepper value={step + 1} className="mb-10">
         <StepperNav className="gap-0">
@@ -280,7 +328,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
             <div>
               <h2 className="text-lg font-bold text-foreground mb-1">Choose a Role</h2>
               <p className="text-sm text-muted-foreground mb-6">Start from a template or create a custom role</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1 scrollbar-none">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {ROLE_TEMPLATES.map((template) => {
                   const Icon = template.icon;
                   return (
@@ -306,7 +354,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
 
           {/* Step 1: Identity */}
           {step === 1 && (
-            <div className="space-y-6">
+            <div className="space-y-6 max-w-3xl mx-auto">
               <div>
                 <h2 className="text-lg font-bold text-foreground mb-1">Employee Identity</h2>
                 <p className="text-sm text-muted-foreground mb-6">Name your employee and customize their role</p>
@@ -319,11 +367,71 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
                   </p>
                 </div>
               )}
+
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative group">
+                  <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary/10 to-violet-500/10 border-2 border-border/50 overflow-hidden flex items-center justify-center shadow-lg">
+                    {name ? (
+                      <img
+                        src={avatarUrl}
+                        alt="Avatar"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                        }}
+                      />
+                    ) : null}
+                    <div className={cn("flex items-center justify-center h-full w-full text-2xl font-bold text-primary/40", name && "hidden")}>
+                      <User className="h-8 w-8 text-muted-foreground/30" />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={regenerateAvatar}
+                    className="absolute -bottom-1 -right-1 h-7 w-7 rounded-lg bg-card border border-border/50 shadow-md flex items-center justify-center hover:bg-muted/50 hover:border-primary/30 transition-all group-hover:scale-110"
+                    title="Regenerate avatar"
+                  >
+                    <RefreshCw className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                </div>
+                <p className="text-[10px] text-muted-foreground/50">Click to regenerate avatar</p>
+              </div>
+
               <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 space-y-5">
+                {/* Name with random generator */}
                 <div>
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Employee Name</label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Alex, Jordan, Atlas..." className="h-11 rounded-xl bg-muted/30 border-border/50" autoFocus />
+                  <div className="flex gap-2">
+                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Alex, Jordan, Atlas..." className="h-11 rounded-xl bg-muted/30 border-border/50 flex-1" autoFocus />
+                    <button
+                      type="button"
+                      onClick={handleRandomName}
+                      disabled={isGeneratingName}
+                      className={cn(
+                        "h-11 px-3.5 rounded-xl border flex items-center gap-2 transition-all duration-300 shrink-0",
+                        isGeneratingName
+                          ? "border-primary/40 bg-primary/10 text-primary"
+                          : "border-border/50 bg-muted/30 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                      )}
+                      title="Generate random name"
+                    >
+                      <Dices className={cn("h-4 w-4 transition-transform", isGeneratingName && "animate-spin")} />
+                      <motion.span
+                        animate={{
+                          display: "inline",
+                          opacity: 1,
+                        }}
+                        className="text-[12px] font-medium hidden sm:inline"
+                      >
+                        Random
+                      </motion.span>
+                    </button>
+                  </div>
                 </div>
+
+                {/* Role / Title searchable dropdown */}
                 <div className="relative">
                   <label className="block text-[12px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Role / Title</label>
                   <div className="relative">
@@ -436,7 +544,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
 
           {/* Step 2: Tools */}
           {step === 2 && (
-            <div>
+            <div className="max-w-3xl mx-auto">
               <h2 className="text-lg font-bold text-foreground mb-1">Assign Tools</h2>
               <p className="text-sm text-muted-foreground mb-6">Select which services this employee can access</p>
               <div className="grid grid-cols-2 gap-3">
@@ -480,13 +588,20 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
 
           {/* Step 3: Review */}
           {step === 3 && (
-            <div>
+            <div className="max-w-3xl mx-auto">
               <h2 className="text-lg font-bold text-foreground mb-1">Review & Hire</h2>
               <p className="text-sm text-muted-foreground mb-6">Confirm your new employee&apos;s details</p>
               <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center text-xl font-bold text-primary-foreground shadow-lg ring-1 ring-white/20">
-                    {name[0]?.toUpperCase() || "?"}
+                  <div className="h-14 w-14 rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-violet-500/20 border border-border/50 shadow-lg flex items-center justify-center">
+                    <img
+                      src={avatarUrl}
+                      alt={name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-foreground">{name}</h3>
@@ -531,7 +646,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
 
       {/* Navigation */}
       {step > 0 && (
-        <div className="flex items-center justify-between mt-8">
+        <div className="flex items-center justify-between mt-8 max-w-3xl mx-auto">
           <button
             onClick={() => setStep((s) => s - 1)}
             className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
