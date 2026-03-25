@@ -72,15 +72,16 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
                     key={index}
                     className={cn(
                         "group relative p-4 rounded-xl overflow-hidden transition-all duration-300",
-                        "border border-gray-100/80 dark:border-white/10 bg-white dark:bg-black",
-                        "hover:shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:hover:shadow-[0_2px_12px_rgba(255,255,255,0.03)]",
-                        "hover:-translate-y-0.5 will-change-transform",
+                        "border border-border/60 dark:border-white/10 bg-card dark:bg-black",
+                        "hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_4px_20px_rgba(255,255,255,0.04)]",
+                        "hover:border-primary/25 dark:hover:border-primary/15",
+                        "hover:-translate-y-1 will-change-transform",
                         item.colSpan || "col-span-1",
                         item.colSpan === 2 ? "md:col-span-2" : "",
                         {
-                            "shadow-[0_2px_12px_rgba(0,0,0,0.03)] -translate-y-0.5":
+                            "shadow-[0_4px_20px_rgba(0,0,0,0.08)] -translate-y-1 border-primary/25":
                                 item.hasPersistentHover,
-                            "dark:shadow-[0_2px_12px_rgba(255,255,255,0.03)]":
+                            "dark:shadow-[0_4px_20px_rgba(255,255,255,0.04)] dark:border-primary/15":
                                 item.hasPersistentHover,
                         }
                     )}
@@ -92,7 +93,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
                                 : "opacity-0 group-hover:opacity-100"
                         } transition-opacity duration-300`}
                     >
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:4px_4px]" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.06)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[length:4px_4px]" />
                     </div>
 
                     <div className="relative flex flex-col space-y-3">
@@ -141,7 +142,7 @@ function BentoGrid({ items = itemsSample }: BentoGridProps) {
                     </div>
 
                     <div
-                        className={`absolute inset-0 -z-10 rounded-xl p-px bg-gradient-to-br from-transparent via-gray-100/50 to-transparent dark:via-white/10 ${
+                        className={`absolute inset-0 -z-10 rounded-xl p-px bg-gradient-to-br from-primary/5 via-primary/15 to-violet-500/5 dark:from-transparent dark:via-white/10 dark:to-transparent ${
                             item.hasPersistentHover
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
