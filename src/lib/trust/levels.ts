@@ -60,12 +60,46 @@ export const AGENT_COLOR_PALETTE = [
 ];
 
 export const SERVICE_DISPLAY: Record<string, { label: string; icon: string }> = {
+  // Google suite
   gmail: { label: "Gmail", icon: "Mail" },
-  calendar: { label: "Calendar", icon: "Calendar" },
-  drive: { label: "Drive", icon: "HardDrive" },
+  calendar: { label: "Google Calendar", icon: "Calendar" },
+  drive: { label: "Google Drive", icon: "HardDrive" },
+  // Communication
   slack: { label: "Slack", icon: "Hash" },
-  stripe: { label: "Stripe", icon: "CreditCard" },
-  github: { label: "GitHub", icon: "Github" },
   discord: { label: "Discord", icon: "MessageCircle" },
+  // Dev tools
+  github: { label: "GitHub", icon: "Github" },
+  bitbucket: { label: "Bitbucket", icon: "GitBranch" },
   figma: { label: "Figma", icon: "Figma" },
+  // Payments & Commerce
+  stripe: { label: "Stripe", icon: "CreditCard" },
+  paypal: { label: "PayPal", icon: "Wallet" },
+  klarna: { label: "Klarna", icon: "CreditCard" },
+  shopify: { label: "Shopify", icon: "ShoppingBag" },
+  // Social media
+  linkedin: { label: "LinkedIn", icon: "Linkedin" },
+  twitter: { label: "Twitter / X", icon: "Twitter" },
+  facebook: { label: "Facebook", icon: "Facebook" },
+  instagram: { label: "Instagram", icon: "Camera" },
+  // Productivity & CRM
+  salesforce: { label: "Salesforce", icon: "Cloud" },
+  dropbox: { label: "Dropbox", icon: "Archive" },
+  box: { label: "Box", icon: "Box" },
+  // Video & Streaming
+  twitch: { label: "Twitch", icon: "Tv" },
+  spotify: { label: "Spotify", icon: "Music" },
+  vimeo: { label: "Vimeo", icon: "Video" },
+  // Auth & Identity
+  microsoft: { label: "Microsoft", icon: "Monitor" },
+  apple: { label: "Apple", icon: "Smartphone" },
+  amazon: { label: "Amazon", icon: "ShoppingCart" },
+  // Design
+  dribbble: { label: "Dribbble", icon: "Palette" },
+  // Other
+  quickbooks: { label: "QuickBooks", icon: "Receipt" },
+  freshbooks: { label: "FreshBooks", icon: "BookOpen" },
+  hubspot: { label: "HubSpot", icon: "Target" },
+  wordpress: { label: "WordPress", icon: "Globe" },
+  tumblr: { label: "Tumblr", icon: "Type" },
+  snapchat: { label: "Snapchat", icon: "Ghost" },
 };
