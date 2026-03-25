@@ -56,11 +56,11 @@ export function PoweredBy() {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/50 bg-muted/30 backdrop-blur-sm mb-6">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl border border-border/50 bg-muted/20 backdrop-blur-sm mb-8">
             <img
               src="https://pages.okta.com/rs/855-QAH-699/images/email-main-template_auth0-by-okta-logo_black_279x127_3x.png"
               alt="Auth0 by Okta"
-              className="h-5 dark:invert"
+              className="h-9 dark:invert"
             />
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">

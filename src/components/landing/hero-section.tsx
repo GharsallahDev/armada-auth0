@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Zap, Shield, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FlipWords } from "@/components/ui/flip-words";
 import { SplineScene } from "@/components/landing/spline-scene";
@@ -73,24 +73,30 @@ export function HeroSection() {
             transition={{ duration: 1.5 }}
             className="flex-1 text-center lg:text-left max-w-2xl"
           >
-            {/* Pill badge */}
+            {/* Premium pill badge */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm mb-8"
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-primary/20 bg-gradient-to-r from-primary/[0.08] to-violet-500/[0.08] backdrop-blur-md mb-8 shadow-sm shadow-primary/5"
             >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+              <div className="relative flex h-5 w-5 items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                <div className="relative h-5 w-5 rounded-full bg-gradient-to-br from-primary to-violet-500 flex items-center justify-center">
+                  <Zap className="h-2.5 w-2.5 text-white" />
+                </div>
+              </div>
+              <span className="text-[13px] font-semibold bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-transparent">
+                The Future of AI Workforce
               </span>
-              <span className="text-[13px] font-medium text-primary/80">
-                AI Workforce Management
+              <div className="h-4 w-px bg-primary/20" />
+              <span className="text-[11px] font-medium text-muted-foreground">
+                Trusted by teams worldwide
               </span>
             </motion.div>
 
-            {/* Main heading with FlipWords */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-3 tracking-tighter">
+            {/* Main heading */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-5 tracking-tighter">
               <motion.span
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -107,16 +113,35 @@ export function HeroSection() {
               />
             </h1>
 
-            {/* Subtitle */}
+            {/* Subtitle — more impactful */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed"
+              className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10 leading-relaxed"
             >
               Deploy AI employees that connect to your services, earn trust through
-              performance, and operate under your control — always.
+              performance, and operate under your control — <span className="text-foreground font-medium">always.</span>
             </motion.p>
+
+            {/* Trust indicators */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
+              className="flex items-center gap-5 mb-10 justify-center lg:justify-start"
+            >
+              {[
+                { icon: Shield, text: "Progressive Trust" },
+                { icon: Bot, text: "34+ Integrations" },
+                { icon: Zap, text: "Real-time CIBA" },
+              ].map((item) => (
+                <div key={item.text} className="flex items-center gap-1.5 text-muted-foreground/70">
+                  <item.icon className="h-3.5 w-3.5 text-primary/60" />
+                  <span className="text-[12px] font-medium">{item.text}</span>
+                </div>
+              ))}
+            </motion.div>
 
             {/* CTAs */}
             <motion.div
@@ -150,7 +175,7 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Right side — Spline 3D scene */}
+          {/* Right side — Spline 3D scene with fade-out at feet */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -161,7 +186,11 @@ export function HeroSection() {
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
             />
-            {/* Glow effect behind the 3D scene */}
+
+            {/* Bottom fade — hides the cut-off feet with a smooth gradient */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-10" />
+
+            {/* Subtle glow behind the robot */}
             <div className="absolute inset-0 -z-10 blur-3xl opacity-30">
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-violet-500/20 to-purple-500/20 rounded-full" />
             </div>

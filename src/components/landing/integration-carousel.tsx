@@ -26,7 +26,7 @@ function IconRow({ reverse = false }: { reverse?: boolean }) {
       <motion.div
         className="flex gap-6 shrink-0"
         animate={{ x: reverse ? ["0%", "-50%"] : ["-50%", "0%"] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       >
         {icons.map((icon, i) => (
           <div
