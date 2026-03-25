@@ -211,7 +211,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
   const connectedServices = connectedProviders.flatMap((p) => PROVIDER_TO_SERVICES[p] || []);
   const allServices = Object.keys(SERVICE_DISPLAY);
 
-  const avatarUrl = getAvatarUrl(avatarSeed + name, avatarStyle);
+  const avatarUrl = getAvatarUrl(avatarSeed + (name || "employee"), avatarStyle);
 
   function selectTemplate(templateId: string) {
     const template = ROLE_TEMPLATES.find((t) => t.id === templateId);
@@ -372,20 +372,11 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
               <div className="flex flex-col items-center gap-3">
                 <div className="relative group">
                   <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-primary/10 to-violet-500/10 border-2 border-border/50 overflow-hidden flex items-center justify-center shadow-lg">
-                    {name ? (
-                      <img
-                        src={avatarUrl}
-                        alt="Avatar"
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
-                        }}
-                      />
-                    ) : null}
-                    <div className={cn("flex items-center justify-center h-full w-full text-2xl font-bold text-primary/40", name && "hidden")}>
-                      <User className="h-8 w-8 text-muted-foreground/30" />
-                    </div>
+                    <img
+                      src={avatarUrl}
+                      alt="Avatar"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                   <button
                     type="button"
