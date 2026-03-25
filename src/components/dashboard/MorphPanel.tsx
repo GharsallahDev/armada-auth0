@@ -261,7 +261,11 @@ export function MorphPanel() {
 function DockBar() {
   const { showForm, triggerOpen } = useFormContext()
   return (
-    <footer className="mt-auto flex h-[44px] items-center justify-center whitespace-nowrap select-none">
+    <button
+      type="button"
+      onClick={triggerOpen}
+      className="mt-auto flex h-[44px] w-full items-center justify-center whitespace-nowrap select-none cursor-pointer hover:bg-muted/30 dark:hover:bg-white/[0.04] transition-colors"
+    >
       <div className="flex items-center justify-center gap-2 px-3 max-sm:h-10 max-sm:px-2">
         <div className="flex w-fit items-center gap-2">
           <AnimatePresence mode="wait">
@@ -287,16 +291,9 @@ function DockBar() {
           </AnimatePresence>
         </div>
 
-        <Button
-          type="button"
-          className="flex h-fit flex-1 justify-end rounded-full px-2 !py-0.5"
-          variant="ghost"
-          onClick={triggerOpen}
-        >
-          <span className="truncate">Ask AI</span>
-        </Button>
+        <span className="text-sm font-medium text-foreground">Ask AI</span>
       </div>
-    </footer>
+    </button>
   )
 }
 
