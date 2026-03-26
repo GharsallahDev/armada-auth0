@@ -41,16 +41,23 @@ const DEFAULT_SCOPES: Record<string, string[]> = {
   twitch: ["user:read:email", "channel:read:subscriptions"],
 };
 
+function getBaseUrl() {
+  if (process.env.APP_BASE_URL && process.env.APP_BASE_URL !== "http://localhost:3002") {
+    return process.env.APP_BASE_URL;
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return process.env.APP_BASE_URL || "http://localhost:3002";
+}
+
 async function initiateConnect(connection: string, additionalScopes?: string[]) {
   const domain = process.env.AUTH0_DOMAIN!;
-  const baseUrl = process.env.APP_BASE_URL || "http://localhost:3002";
-
+  const baseUrl = getBaseUrl();
   const token = await getMyAccountToken();
-
-  // Debug: check what token looks like
-  if (!token || typeof token !== "string" || token.length < 10) {
-    throw new Error(`Invalid My Account token: type=${typeof token}, length=${token?.length}, preview=${String(token).slice(0, 20)}`);
-  }
 
   const defaultScopes = DEFAULT_SCOPES[connection] || [];
   const mergedScopes = Array.from(
@@ -58,13 +65,6 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
   );
 
   const state = crypto.randomUUID();
-
-  const requestBody = {
-    connection,
-    redirect_uri: `${baseUrl}/api/services/connect/callback`,
-    state,
-    scopes: mergedScopes,
-  };
 
   const res = await fetch(
     `https://${domain}/me/v1/connected-accounts/connect`,
@@ -74,7 +74,12 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        connection,
+        redirect_uri: `${baseUrl}/api/services/connect/callback`,
+        state,
+        scopes: mergedScopes,
+      }),
     }
   );
 
@@ -83,7 +88,7 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
   if (!res.ok) {
     console.error("Connected Accounts connect failed:", data);
     throw new Error(
-      `Auth0 Connected Accounts error (${res.status}): ${JSON.stringify(data)} | token_preview: ${token.slice(0, 15)}... | request: ${JSON.stringify(requestBody)}`
+      `Auth0 Connected Accounts error (${res.status}): ${JSON.stringify(data)}`
     );
   }
 
@@ -170,10 +175,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(result.connect_uri);
   } catch (error: any) {
     console.error("Connect redirect error:", error);
-    // Temporarily return JSON error for debugging
-    return NextResponse.json(
-      { error: error.message, stack: error.stack?.split("\n").slice(0, 5) },
-      { status: 500 }
-    );
+    const url = new URL("/dashboard/settings", req.url);
+    url.searchParams.set("error", "connect_failed");
+    url.searchParams.set("detail", error.message?.slice(0, 200) || "Unknown error");
+    return NextResponse.redirect(url);
   }
 }
