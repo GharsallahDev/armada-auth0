@@ -11,59 +11,121 @@ export async function GET() {
     }
 
     const domain = process.env.AUTH0_DOMAIN!;
+    const token = session.tokenSet.accessToken!;
 
-    // Method 1: session.tokenSet.accessToken (raw)
-    const rawToken = session.tokenSet.accessToken;
-    const rawPreview = rawToken ? rawToken.slice(0, 30) : null;
+    // Decode token structure
+    const parts = token.split(".");
+    const header = JSON.parse(Buffer.from(parts[0], "base64url").toString());
 
-    // Method 2: auth0.getAccessToken() with /me/ audience
-    let sdkTokenResult: any;
-    let sdkToken: string | null = null;
+    // Try decoding payload if it's a JWT (3 parts)
+    let payload: any = null;
+    if (parts.length === 3) {
+      try {
+        payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
+      } catch {}
+    }
+
+    // Test 1: Call /me/ with current token
+    const test1 = await testEndpoint(
+      `https://${domain}/me/v1/connected-accounts/accounts`,
+      token
+    );
+
+    // Test 2: Try getting a token via client_credentials for Management API
+    // to call GET /api/v2/client-grants and verify our grant
+    let grantCheck: any = null;
     try {
-      const tokenResponse = await auth0.getAccessToken({
+      // Use the MCP-style approach - get a management token
+      const clientId = process.env.AUTH0_CLIENT_ID!;
+      const clientSecret = process.env.AUTH0_CLIENT_SECRET!;
+
+      // Direct refresh token exchange with form-urlencoded
+      const refreshToken = session.tokenSet.refreshToken!;
+      const params = new URLSearchParams({
+        grant_type: "refresh_token",
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
         audience: `https://${domain}/me/`,
         scope: "create:me:connected_accounts read:me:connected_accounts delete:me:connected_accounts",
       });
-      sdkToken = tokenResponse.token;
-      sdkTokenResult = {
-        success: true,
-        length: sdkToken?.length,
-        preview: sdkToken?.slice(0, 30),
-      };
+
+      const res = await fetch(`https://${domain}/oauth/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString(),
+      });
+      const data = await res.json();
+
+      if (data.access_token) {
+        const exchangeParts = data.access_token.split(".");
+        const exchangeHeader = JSON.parse(Buffer.from(exchangeParts[0], "base64url").toString());
+
+        // Test this token too
+        const test2 = await testEndpoint(
+          `https://${domain}/me/v1/connected-accounts/accounts`,
+          data.access_token
+        );
+
+        grantCheck = {
+          exchangeStatus: res.status,
+          exchangeScope: data.scope,
+          exchangeTokenParts: exchangeParts.length,
+          exchangeHeader,
+          exchangeTokenLength: data.access_token.length,
+          apiTest: test2,
+        };
+      } else {
+        grantCheck = { exchangeStatus: res.status, error: data };
+      }
     } catch (e: any) {
-      sdkTokenResult = { error: e.message };
+      grantCheck = { error: e.message };
     }
 
-    // Test both tokens against the My Account API
-    const testToken = async (label: string, token: string | null) => {
-      if (!token) return { skipped: true };
-      try {
-        const res = await fetch(
-          `https://${domain}/me/v1/connected-accounts/accounts`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const text = await res.text();
-        return { status: res.status, body: text.slice(0, 300) };
-      } catch (e: any) {
-        return { error: e.message };
-      }
-    };
+    // Test 3: Try calling a DIFFERENT /me/ endpoint to verify the API is alive
+    const test3 = await testEndpoint(
+      `https://${domain}/me/`,
+      token
+    );
 
-    const rawTokenTest = await testToken("raw", rawToken);
-    const sdkTokenTest = await testToken("sdk", sdkToken);
+    // Test 4: No auth at all — see what error we get
+    let noAuthTest: any;
+    try {
+      const res = await fetch(`https://${domain}/me/v1/connected-accounts/accounts`);
+      noAuthTest = { status: res.status, body: (await res.text()).slice(0, 300) };
+    } catch (e: any) {
+      noAuthTest = { error: e.message };
+    }
 
     return NextResponse.json({
       user: session.user.sub,
       sessionScopes: session.tokenSet.scope,
-      rawToken: { preview: rawPreview, length: rawToken?.length },
-      sdkTokenResult,
-      rawTokenTest,
-      sdkTokenTest,
+      tokenAnalysis: {
+        parts: parts.length,
+        header,
+        payload: payload ? { aud: payload.aud, scope: payload.scope, iss: payload.iss, exp: payload.exp } : "encrypted (JWE)",
+        length: token.length,
+      },
+      meApiTest: test1,
+      refreshExchangeTest: grantCheck,
+      meRootTest: test3,
+      noAuthTest,
     });
   } catch (e: any) {
     return NextResponse.json({
       error: e.message,
       stack: e.stack?.split("\n").slice(0, 5),
     });
+  }
+}
+
+async function testEndpoint(url: string, token: string) {
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return { status: res.status, body: (await res.text()).slice(0, 300) };
+  } catch (e: any) {
+    return { error: e.message };
   }
 }
