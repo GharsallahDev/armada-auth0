@@ -1,15 +1,7 @@
-import { db } from "@/lib/db/client";
-import { connectedServices } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { getServiceToken } from "@/lib/token-vault";
 
-async function getGithubToken(userId: string): Promise<string> {
-  const [service] = await db
-    .select()
-    .from(connectedServices)
-    .where(and(eq(connectedServices.userId, userId), eq(connectedServices.provider, "github")))
-    .limit(1);
-  if (!service) throw new Error("GitHub account not connected. Please connect GitHub in Settings.");
-  return service.accessToken;
+async function getGithubToken(): Promise<string> {
+  return getServiceToken("github");
 }
 
 async function githubApi(token: string, url: string, options?: RequestInit) {
@@ -30,7 +22,7 @@ async function githubApi(token: string, url: string, options?: RequestInit) {
 }
 
 export async function listRepos(userId: string, limit = 10) {
-  const token = await getGithubToken(userId);
+  const token = await getGithubToken();
   const repos = await githubApi(token, `https://api.github.com/user/repos?per_page=${limit}&sort=updated`);
   return repos.map((r: any) => ({
     id: r.id,
@@ -45,7 +37,7 @@ export async function listRepos(userId: string, limit = 10) {
 }
 
 export async function listIssues(userId: string, repo: string, limit = 10) {
-  const token = await getGithubToken(userId);
+  const token = await getGithubToken();
   const issues = await githubApi(token, `https://api.github.com/repos/${repo}/issues?per_page=${limit}&state=open`);
   return issues.map((i: any) => ({
     id: i.id,
@@ -60,7 +52,7 @@ export async function listIssues(userId: string, repo: string, limit = 10) {
 }
 
 export async function readIssue(userId: string, repo: string, issueNumber: number) {
-  const token = await getGithubToken(userId);
+  const token = await getGithubToken();
   const issue = await githubApi(token, `https://api.github.com/repos/${repo}/issues/${issueNumber}`);
   return {
     id: issue.id,
@@ -78,7 +70,7 @@ export async function readIssue(userId: string, repo: string, issueNumber: numbe
 }
 
 export async function createIssue(userId: string, repo: string, title: string, body: string, labels?: string[]) {
-  const token = await getGithubToken(userId);
+  const token = await getGithubToken();
   const issue = await githubApi(token, `https://api.github.com/repos/${repo}/issues`, {
     method: "POST",
     body: JSON.stringify({ title, body, labels: labels || [] }),
@@ -93,7 +85,7 @@ export async function createIssue(userId: string, repo: string, title: string, b
 }
 
 export async function createComment(userId: string, repo: string, issueNumber: number, body: string) {
-  const token = await getGithubToken(userId);
+  const token = await getGithubToken();
   const comment = await githubApi(token, `https://api.github.com/repos/${repo}/issues/${issueNumber}/comments`, {
     method: "POST",
     body: JSON.stringify({ body }),
@@ -106,7 +98,7 @@ export async function createComment(userId: string, repo: string, issueNumber: n
 }
 
 export async function listPRs(userId: string, repo: string, limit = 10) {
-  const token = await getGithubToken(userId);
+  const token = await getGithubToken();
   const prs = await githubApi(token, `https://api.github.com/repos/${repo}/pulls?per_page=${limit}&state=open`);
   return prs.map((p: any) => ({
     id: p.id,

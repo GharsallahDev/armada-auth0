@@ -1,15 +1,13 @@
-import { getGoogleTokens, googleApi } from "./google-auth";
+import { getGoogleAccessToken, googleApi } from "./google-auth";
 
 const DRIVE_BASE = "https://www.googleapis.com/drive/v3";
 
-async function getToken(userId: string) {
-  const tokens = await getGoogleTokens(userId);
-  if (!tokens) throw new Error("Google account not connected. Please connect Google in Settings.");
-  return tokens.accessToken;
+async function getToken() {
+  return getGoogleAccessToken();
 }
 
 export async function listFiles(userId: string, maxResults = 10, query?: string) {
-  const token = await getToken(userId);
+  const token = await getToken();
   let q = "trashed=false";
   if (query) q += ` and name contains '${query.replace(/'/g, "\\'")}'`;
 
@@ -36,7 +34,7 @@ export async function listFiles(userId: string, maxResults = 10, query?: string)
 }
 
 export async function readDocument(userId: string, fileId: string) {
-  const token = await getToken(userId);
+  const token = await getToken();
   // Get file metadata
   const meta = await googleApi(
     token,
@@ -75,7 +73,7 @@ export async function createDocument(
   title: string,
   content: string
 ) {
-  const token = await getToken(userId);
+  const token = await getToken();
 
   // Create Google Doc
   const fileMeta = await googleApi(token, `${DRIVE_BASE}/files`, {
@@ -122,7 +120,7 @@ export async function shareDocument(
   email: string,
   role: "reader" | "writer" = "reader"
 ) {
-  const token = await getToken(userId);
+  const token = await getToken();
   await googleApi(token, `${DRIVE_BASE}/files/${fileId}/permissions`, {
     method: "POST",
     body: JSON.stringify({

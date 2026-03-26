@@ -1,15 +1,7 @@
-import { db } from "@/lib/db/client";
-import { connectedServices } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { getServiceToken } from "@/lib/token-vault";
 
-async function getDiscordToken(userId: string): Promise<string> {
-  const [service] = await db
-    .select()
-    .from(connectedServices)
-    .where(and(eq(connectedServices.userId, userId), eq(connectedServices.provider, "discord")))
-    .limit(1);
-  if (!service) throw new Error("Discord account not connected. Please connect Discord in Settings.");
-  return service.accessToken;
+async function getDiscordToken(): Promise<string> {
+  return getServiceToken("discord");
 }
 
 async function discordApi(token: string, endpoint: string, options?: RequestInit) {
@@ -29,7 +21,7 @@ async function discordApi(token: string, endpoint: string, options?: RequestInit
 }
 
 export async function listServers(userId: string) {
-  const token = await getDiscordToken(userId);
+  const token = await getDiscordToken();
   const guilds = await discordApi(token, "/users/@me/guilds");
   return guilds.map((g: any) => ({
     id: g.id,
@@ -40,7 +32,7 @@ export async function listServers(userId: string) {
 }
 
 export async function listChannels(userId: string, serverId: string) {
-  const token = await getDiscordToken(userId);
+  const token = await getDiscordToken();
   const channels = await discordApi(token, `/guilds/${serverId}/channels`);
   return channels
     .filter((c: any) => c.type === 0) // text channels only
@@ -52,7 +44,7 @@ export async function listChannels(userId: string, serverId: string) {
 }
 
 export async function readMessages(userId: string, channelId: string, limit = 20) {
-  const token = await getDiscordToken(userId);
+  const token = await getDiscordToken();
   const messages = await discordApi(token, `/channels/${channelId}/messages?limit=${limit}`);
   return messages.map((m: any) => ({
     id: m.id,
@@ -63,7 +55,7 @@ export async function readMessages(userId: string, channelId: string, limit = 20
 }
 
 export async function sendMessage(userId: string, channelId: string, content: string) {
-  const token = await getDiscordToken(userId);
+  const token = await getDiscordToken();
   const message = await discordApi(token, `/channels/${channelId}/messages`, {
     method: "POST",
     body: JSON.stringify({ content }),

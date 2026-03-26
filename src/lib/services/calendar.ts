@@ -1,15 +1,13 @@
-import { getGoogleTokens, googleApi } from "./google-auth";
+import { getGoogleAccessToken, googleApi } from "./google-auth";
 
 const CAL_BASE = "https://www.googleapis.com/calendar/v3";
 
-async function getToken(userId: string) {
-  const tokens = await getGoogleTokens(userId);
-  if (!tokens) throw new Error("Google account not connected. Please connect Google in Settings.");
-  return tokens.accessToken;
+async function getToken() {
+  return getGoogleAccessToken();
 }
 
 export async function listEvents(userId: string, maxResults = 10) {
-  const token = await getToken(userId);
+  const token = await getToken();
   const now = new Date().toISOString();
   const data = await googleApi(
     token,
@@ -36,7 +34,7 @@ export async function listEvents(userId: string, maxResults = 10) {
 }
 
 export async function checkAvailability(userId: string, date: string) {
-  const token = await getToken(userId);
+  const token = await getToken();
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(date);
@@ -69,7 +67,7 @@ export async function createEvent(
   attendees?: string[],
   description?: string
 ) {
-  const token = await getToken(userId);
+  const token = await getToken();
 
   const event: Record<string, unknown> = {
     summary,

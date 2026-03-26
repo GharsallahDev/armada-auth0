@@ -1,10 +1,21 @@
-const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN;
+import { getServiceToken } from "@/lib/token-vault";
+
+async function getSlackToken(): Promise<string> {
+  try {
+    return await getServiceToken("slack");
+  } catch {
+    const botToken = process.env.SLACK_BOT_TOKEN;
+    if (!botToken) throw new Error("Slack not connected. Please connect Slack in Settings.");
+    return botToken;
+  }
+}
 
 async function slackApi(method: string, body?: Record<string, unknown>) {
+  const token = await getSlackToken();
   const res = await fetch(`https://slack.com/api/${method}`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${SLACK_BOT_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json; charset=utf-8",
     },
     body: body ? JSON.stringify(body) : undefined,

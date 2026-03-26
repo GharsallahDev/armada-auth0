@@ -9,6 +9,8 @@ const SERVICE_DESCRIPTIONS: Record<ServiceName, string> = {
   stripe: "Stripe (view balance, payments, customers, invoices; create and send invoices)",
   github: "GitHub (list repos, issues, PRs; create issues and comments)",
   discord: "Discord (list servers, channels, read and send messages)",
+  linkedin: "LinkedIn (view profile, create posts, view connections)",
+  shopify: "Shopify (list products, orders, get product details)",
 };
 
 export function buildSystemPrompt(agent: {

@@ -1,3 +1,5 @@
+// Note: Stripe uses API keys for authentication. If Stripe Connect OAuth tokens
+// are needed in the future, they could be managed via Auth0 Token Vault.
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

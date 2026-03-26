@@ -12,8 +12,10 @@ import * as slack from "@/lib/services/slack";
 import * as stripe from "@/lib/services/stripe";
 import * as github from "@/lib/services/github";
 import * as discord from "@/lib/services/discord";
+import * as linkedin from "@/lib/services/linkedin";
+import * as shopify from "@/lib/services/shopify";
 
-export type ServiceName = "gmail" | "calendar" | "drive" | "slack" | "stripe" | "github" | "discord";
+export type ServiceName = "gmail" | "calendar" | "drive" | "slack" | "stripe" | "github" | "discord" | "linkedin" | "shopify";
 
 function withTrustCheck(
   userId: string,
@@ -279,6 +281,52 @@ function discordTools(userId: string, agentSlug: string) {
   };
 }
 
+function linkedinTools(userId: string, agentSlug: string) {
+  return {
+    linkedin_get_profile: tool({
+      description: "Get LinkedIn profile",
+      inputSchema: z.object({}),
+      execute: withTrustCheck(userId, agentSlug, "linkedin", "read", "linkedin_get_profile",
+        async () => linkedin.getProfile(userId)),
+    }),
+    linkedin_create_post: tool({
+      description: "Create a LinkedIn post",
+      inputSchema: z.object({ text: z.string() }),
+      execute: withTrustCheck(userId, agentSlug, "linkedin", "execute", "linkedin_create_post",
+        async (params) => linkedin.createPost(userId, params.text)),
+    }),
+    linkedin_get_connections: tool({
+      description: "List connections",
+      inputSchema: z.object({}),
+      execute: withTrustCheck(userId, agentSlug, "linkedin", "read", "linkedin_get_connections",
+        async () => linkedin.getConnections(userId)),
+    }),
+  };
+}
+
+function shopifyTools(userId: string, agentSlug: string) {
+  return {
+    shopify_list_products: tool({
+      description: "List Shopify products",
+      inputSchema: z.object({ limit: z.number().optional().default(10) }),
+      execute: withTrustCheck(userId, agentSlug, "shopify", "read", "shopify_list_products",
+        async (params) => shopify.listProducts(userId, params.limit)),
+    }),
+    shopify_list_orders: tool({
+      description: "List orders",
+      inputSchema: z.object({ limit: z.number().optional().default(10) }),
+      execute: withTrustCheck(userId, agentSlug, "shopify", "read", "shopify_list_orders",
+        async (params) => shopify.listOrders(userId, params.limit)),
+    }),
+    shopify_get_product: tool({
+      description: "Get product details",
+      inputSchema: z.object({ productId: z.string() }),
+      execute: withTrustCheck(userId, agentSlug, "shopify", "read", "shopify_get_product",
+        async (params) => shopify.getProduct(userId, params.productId)),
+    }),
+  };
+}
+
 const SERVICE_TOOL_FACTORIES: Record<ServiceName, (userId: string, agentSlug: string) => Record<string, any>> = {
   gmail: gmailTools,
   calendar: calendarTools,
@@ -287,6 +335,8 @@ const SERVICE_TOOL_FACTORIES: Record<ServiceName, (userId: string, agentSlug: st
   stripe: stripeTools,
   github: githubTools,
   discord: discordTools,
+  linkedin: linkedinTools,
+  shopify: shopifyTools,
 };
 
 export function buildAgentTools(userId: string, agentSlug: string, services: ServiceName[]): Record<string, any> {
@@ -333,6 +383,12 @@ export function getToolDisplayMap(services: ServiceName[]): Record<string, { ser
     discord_list_channels: { service: "discord", label: "Listing channels" },
     discord_read_messages: { service: "discord", label: "Reading messages" },
     discord_send_message: { service: "discord", label: "Sending message" },
+    linkedin_get_profile: { service: "linkedin", label: "Getting profile" },
+    linkedin_create_post: { service: "linkedin", label: "Creating post" },
+    linkedin_get_connections: { service: "linkedin", label: "Listing connections" },
+    shopify_list_products: { service: "shopify", label: "Listing products" },
+    shopify_list_orders: { service: "shopify", label: "Listing orders" },
+    shopify_get_product: { service: "shopify", label: "Getting product" },
   };
   for (const [name, meta] of Object.entries(toolMeta)) {
     if (services.includes(meta.service as ServiceName)) {

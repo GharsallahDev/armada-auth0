@@ -1,15 +1,13 @@
-import { getGoogleTokens, googleApi } from "./google-auth";
+import { getGoogleAccessToken, googleApi } from "./google-auth";
 
 const GMAIL_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
 
-async function getToken(userId: string) {
-  const tokens = await getGoogleTokens(userId);
-  if (!tokens) throw new Error("Google account not connected. Please connect Google in Settings.");
-  return tokens.accessToken;
+async function getToken() {
+  return getGoogleAccessToken();
 }
 
 export async function listEmails(userId: string, maxResults = 10) {
-  const token = await getToken(userId);
+  const token = await getToken();
   const list = await googleApi(token, `${GMAIL_BASE}/messages?maxResults=${maxResults}&labelIds=INBOX`);
 
   if (!list.messages || list.messages.length === 0) {
@@ -37,7 +35,7 @@ export async function listEmails(userId: string, maxResults = 10) {
 }
 
 export async function readEmail(userId: string, messageId: string) {
-  const token = await getToken(userId);
+  const token = await getToken();
   const detail = await googleApi(token, `${GMAIL_BASE}/messages/${messageId}?format=full`);
   const headers = detail.payload?.headers || [];
   const get = (name: string) => headers.find((h: { name: string; value: string }) => h.name === name)?.value || "";
@@ -69,7 +67,7 @@ export async function draftEmail(
   subject: string,
   body: string
 ) {
-  const token = await getToken(userId);
+  const token = await getToken();
   const raw = Buffer.from(
     `To: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
   ).toString("base64url");
@@ -94,7 +92,7 @@ export async function sendEmail(
   subject: string,
   body: string
 ) {
-  const token = await getToken(userId);
+  const token = await getToken();
   const raw = Buffer.from(
     `To: ${to}\r\nSubject: ${subject}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}`
   ).toString("base64url");

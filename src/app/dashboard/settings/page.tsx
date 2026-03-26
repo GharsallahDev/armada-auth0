@@ -43,17 +43,36 @@ export default function SettingsPage() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(["popular"]);
 
   const isConnected = (provider: string) => {
-    const alwaysConnected = ["slack", "stripe"];
-    if (alwaysConnected.includes(provider)) return true;
     return connectedServices?.some((s) => s.provider === provider) || false;
   };
 
   const oauthProviders = ["google", "github", "discord", "facebook", "apple", "microsoft", "linkedin", "twitter", "spotify", "twitch", "figma", "shopify", "gitlab", "bitbucket", "notion", "atlassian", "zoom", "salesforce", "hubspot"];
 
+  const TOKEN_VAULT_CONNECTIONS: Record<string, string> = {
+    google: "google-oauth2",
+    github: "github",
+    discord: "discord",
+    slack: "Sign-in-with-Slack",
+    linkedin: "linkedin",
+    shopify: "shopify",
+    stripe: "Stripe-Connect",
+    spotify: "spotify",
+    facebook: "facebook",
+    twitter: "twitter",
+    twitch: "twitch",
+    dropbox: "dropbox",
+    paypal: "paypal",
+    microsoft: "windowslive",
+    apple: "apple",
+    bitbucket: "bitbucket",
+    box: "box",
+    salesforce: "salesforce",
+    figma: "figma",
+  };
+
   const getConnectUrl = (id: string) => {
-    if (id === "google") return "/api/auth/google";
-    if (id === "github") return "/api/auth/github";
-    if (id === "discord") return "/api/auth/discord";
+    const connection = TOKEN_VAULT_CONNECTIONS[id];
+    if (connection) return `/api/services/connect?connection=${connection}`;
     return null;
   };
 
