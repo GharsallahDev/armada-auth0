@@ -89,7 +89,8 @@ export async function getServiceToken(service: string): Promise<string> {
 }
 
 /**
- * Get a My Account API access token for managing Connected Accounts
+ * Get a My Account API access token for managing Connected Accounts.
+ * Uses the session's access token directly (audience is set to /me/ at login).
  */
 export async function getMyAccountToken(): Promise<string> {
   const session = await auth0.getSession();
@@ -97,37 +98,10 @@ export async function getMyAccountToken(): Promise<string> {
     throw new Error("No active session");
   }
 
-  const refreshToken = session.tokenSet.refreshToken;
-  if (!refreshToken) {
-    throw new Error("No refresh token in session");
+  const accessToken = session.tokenSet.accessToken;
+  if (!accessToken) {
+    throw new Error("No access token in session");
   }
 
-  const domain = process.env.AUTH0_DOMAIN!;
-  const clientId = process.env.AUTH0_CLIENT_ID!;
-  const clientSecret = process.env.AUTH0_CLIENT_SECRET!;
-
-  const res = await fetch(`https://${domain}/oauth/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      audience: `https://${domain}/me/`,
-      scope:
-        "create:me:connected_accounts read:me:connected_accounts delete:me:connected_accounts",
-    }),
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    console.error("My Account API token exchange failed:", data);
-    throw new Error(
-      `My Account API token failed: ${data.error_description || data.error}`
-    );
-  }
-
-  return data.access_token;
+  return accessToken;
 }
