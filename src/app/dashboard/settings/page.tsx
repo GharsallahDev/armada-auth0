@@ -46,15 +46,16 @@ export default function SettingsPage() {
     return connectedServices?.some((s) => s.provider === provider) || false;
   };
 
-  // Only providers that are actually configured in Auth0 dashboard
+  // Only providers with "Connected Accounts for Token Vault" enabled in Auth0
   const TOKEN_VAULT_CONNECTIONS: Record<string, string> = {
     google: "google-oauth2",
     github: "github",
-    slack: "Sign-in-with-Slack",
-    stripe: "Stripe-Connect",
-    linkedin: "linkedin",
-    shopify: "shopify",
+    slack: "sign-in-with-slack",
+    stripe: "stripe",
   };
+
+  // Providers configured for Authentication only (no Token Vault)
+  const AUTH_ONLY_CONNECTIONS = new Set(["linkedin", "shopify"]);
 
   const getConnectUrl = (id: string) => {
     const connection = TOKEN_VAULT_CONNECTIONS[id];
@@ -203,6 +204,7 @@ export default function SettingsPage() {
                                   connection={connection}
                                   connected={isConnected(connection.id)}
                                   available={isAvailable(connection.id)}
+                                  authOnly={AUTH_ONLY_CONNECTIONS.has(connection.id)}
                                   connectUrl={getConnectUrl(connection.id)}
                                 />
                               ))}
@@ -308,18 +310,22 @@ function ConnectionCard({
   connection,
   connected,
   available,
+  authOnly,
   connectUrl,
 }: {
   connection: SocialConnection;
   connected: boolean;
   available: boolean;
+  authOnly: boolean;
   connectUrl: string | null;
 }) {
   return (
     <div className={`group flex items-center justify-between px-3.5 py-3 rounded-xl border transition-all ${
       available
         ? "border-border/30 bg-card/30 hover:bg-muted/30 hover:border-border/50"
-        : "border-border/20 bg-card/10 opacity-50"
+        : authOnly
+          ? "border-border/20 bg-card/20 opacity-70"
+          : "border-border/20 bg-card/10 opacity-40"
     }`}>
       <div className="flex items-center gap-3">
         <div className={`h-8 w-8 rounded-lg flex items-center justify-center border border-border/30 ${
@@ -349,13 +355,13 @@ function ConnectionCard({
         >
           {connected ? "Reconnect" : "Connect"}
         </a>
-      ) : !available ? (
-        <span className="text-[9px] px-2 py-0.5 rounded-md bg-muted/20 text-muted-foreground/60 border border-border/20">
-          Coming Soon
+      ) : authOnly ? (
+        <span className="text-[9px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          Auth Only
         </span>
       ) : (
-        <span className={`text-[9px] px-2 py-0.5 rounded-md ${connected ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-muted/30 text-muted-foreground border border-border/30"}`}>
-          {connected ? "Active" : "Available"}
+        <span className="text-[9px] px-2 py-0.5 rounded-md bg-muted/20 text-muted-foreground/60 border border-border/20">
+          Coming Soon
         </span>
       )}
     </div>

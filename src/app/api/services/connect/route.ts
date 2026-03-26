@@ -22,7 +22,7 @@ const DEFAULT_SCOPES: Record<string, string[]> = {
   ],
   github: ["read:user", "repo", "read:org"],
   discord: ["identify", "guilds", "guilds.members.read"],
-  "Sign-in-with-Slack": [
+  "sign-in-with-slack": [
     "users:read",
     "channels:read",
     "channels:history",
@@ -30,7 +30,7 @@ const DEFAULT_SCOPES: Record<string, string[]> = {
   ],
   linkedin: ["openid", "profile", "email", "w_member_social"],
   shopify: ["read_products", "read_orders"],
-  "Stripe-Connect": ["read_write"],
+  stripe: ["read_write"],
   spotify: [
     "user-read-private",
     "playlist-read-private",
