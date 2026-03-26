@@ -161,11 +161,12 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.redirect(result.connect_uri);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Connect redirect error:", error);
-    const baseUrl = process.env.APP_BASE_URL || "http://localhost:3002";
-    return NextResponse.redirect(
-      `${baseUrl}/dashboard/settings?error=connect_failed`
+    // Temporarily return JSON error for debugging
+    return NextResponse.json(
+      { error: error.message, stack: error.stack?.split("\n").slice(0, 5) },
+      { status: 500 }
     );
   }
 }
