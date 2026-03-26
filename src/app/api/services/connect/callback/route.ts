@@ -5,22 +5,33 @@ import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  const baseUrl = process.env.APP_BASE_URL || "http://localhost:3002";
+function getBaseUrl() {
+  if (process.env.APP_BASE_URL && process.env.APP_BASE_URL !== "http://localhost:3002") {
+    return process.env.APP_BASE_URL;
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return process.env.APP_BASE_URL || "http://localhost:3002";
+}
 
+export async function POST(req: NextRequest) {
   try {
     const user = await getAuthenticatedUser(req);
     if (!user) {
-      return NextResponse.redirect(`${baseUrl}/auth/login`);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const connectCode = req.nextUrl.searchParams.get("connect_code");
-    const state = req.nextUrl.searchParams.get("state");
+    const body = await req.json();
+    const { connect_code, state } = body;
 
-    if (!connectCode) {
-      console.error("Missing connect_code in callback");
-      return NextResponse.redirect(
-        `${baseUrl}/dashboard/settings?error=missing_code`
+    if (!connect_code) {
+      return NextResponse.json(
+        { error: "Missing connect_code" },
+        { status: 400 }
       );
     }
 
@@ -28,13 +39,14 @@ export async function GET(req: NextRequest) {
     const authSession = cookieStore.get("auth0_connect_session")?.value;
 
     if (!authSession) {
-      console.error("Missing auth0_connect_session cookie");
-      return NextResponse.redirect(
-        `${baseUrl}/dashboard/settings?error=missing_session`
+      return NextResponse.json(
+        { error: "Missing auth0_connect_session cookie. Session may have expired." },
+        { status: 400 }
       );
     }
 
     const domain = process.env.AUTH0_DOMAIN!;
+    const baseUrl = getBaseUrl();
     const token = await getMyAccountToken();
 
     const res = await fetch(
@@ -47,8 +59,8 @@ export async function GET(req: NextRequest) {
         },
         body: JSON.stringify({
           auth_session: authSession,
-          connect_code: connectCode,
-          redirect_uri: `${baseUrl}/api/services/connect/callback`,
+          connect_code: connect_code,
+          redirect_uri: `${baseUrl}/dashboard/connect/callback`,
         }),
       }
     );
@@ -66,20 +78,21 @@ export async function GET(req: NextRequest) {
 
     if (!res.ok) {
       console.error("Connected Accounts complete failed:", data);
-      return NextResponse.redirect(
-        `${baseUrl}/dashboard/settings?error=connect_complete_failed`
+      return NextResponse.json(
+        { error: data.error_description || data.error || "Complete failed" },
+        { status: res.status }
       );
     }
 
-    const connectionName = data.connection || state || "unknown";
-
-    return NextResponse.redirect(
-      `${baseUrl}/dashboard/settings?connected=${encodeURIComponent(connectionName)}`
-    );
+    return NextResponse.json({
+      success: true,
+      connection: data.connection || state || "unknown",
+    });
   } catch (error) {
     console.error("Connect callback error:", error);
-    return NextResponse.redirect(
-      `${baseUrl}/dashboard/settings?error=connect_failed`
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Connect callback failed" },
+      { status: 500 }
     );
   }
 }

@@ -8,16 +8,10 @@ export const dynamic = "force-dynamic";
 
 const DEFAULT_SCOPES: Record<string, string[]> = {
   "google-oauth2": [
-    "openid",
-    "profile",
-    "email",
-    "offline_access",
     "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.compose",
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events",
-    "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/drive.file",
   ],
   github: ["read:user", "repo", "read:org"],
@@ -76,7 +70,7 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
       },
       body: JSON.stringify({
         connection,
-        redirect_uri: `${baseUrl}/api/services/connect/callback`,
+        redirect_uri: `${baseUrl}/dashboard/connect/callback`,
         state,
         scopes: mergedScopes,
       }),
@@ -92,8 +86,15 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
     );
   }
 
+  // Build the full redirect URL with ticket from connect_params
+  let connectUrl = data.connect_uri;
+  if (data.connect_params?.ticket) {
+    const separator = connectUrl.includes("?") ? "&" : "?";
+    connectUrl = `${connectUrl}${separator}ticket=${data.connect_params.ticket}`;
+  }
+
   return {
-    connect_uri: data.connect_uri,
+    connect_uri: connectUrl,
     auth_session: data.auth_session,
     connection,
   };
