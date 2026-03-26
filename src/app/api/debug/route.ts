@@ -11,118 +11,54 @@ export async function GET() {
     }
 
     const domain = process.env.AUTH0_DOMAIN!;
-    const clientId = process.env.AUTH0_CLIENT_ID!;
-    const clientSecret = process.env.AUTH0_CLIENT_SECRET!;
-    const baseUrl = process.env.APP_BASE_URL || "http://localhost:3002";
 
-    // Step 1: Raw token exchange — show FULL response
-    let tokenExchangeResult: any = null;
-    let token: string | null = null;
+    // Method 1: session.tokenSet.accessToken (raw)
+    const rawToken = session.tokenSet.accessToken;
+    const rawPreview = rawToken ? rawToken.slice(0, 30) : null;
 
-    const refreshToken = session.tokenSet.refreshToken;
-    if (refreshToken) {
-      // Try form-urlencoded (as shown in Auth0 docs)
-      const params = new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
+    // Method 2: auth0.getAccessToken() with /me/ audience
+    let sdkTokenResult: any;
+    let sdkToken: string | null = null;
+    try {
+      const tokenResponse = await auth0.getAccessToken({
         audience: `https://${domain}/me/`,
         scope: "create:me:connected_accounts read:me:connected_accounts delete:me:connected_accounts",
       });
-
-      const res = await fetch(`https://${domain}/oauth/token`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
-      });
-
-      const data = await res.json();
-      tokenExchangeResult = {
-        status: res.status,
-        has_access_token: !!data.access_token,
-        token_type: data.token_type,
-        scope: data.scope,
-        expires_in: data.expires_in,
-        token_preview: data.access_token?.slice(0, 30),
-        token_length: data.access_token?.length,
-        error: data.error,
-        error_description: data.error_description,
+      sdkToken = tokenResponse.token;
+      sdkTokenResult = {
+        success: true,
+        length: sdkToken?.length,
+        preview: sdkToken?.slice(0, 30),
       };
-      token = data.access_token || null;
+    } catch (e: any) {
+      sdkTokenResult = { error: e.message };
     }
 
-    // Step 2: Test listing connected accounts
-    let listResult: any = null;
-    if (token) {
-      const res = await fetch(
-        `https://${domain}/me/v1/connected-accounts/accounts`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const text = await res.text();
-      listResult = {
-        status: res.status,
-        headers: Object.fromEntries(res.headers.entries()),
-        body: text.slice(0, 500),
-      };
-    }
+    // Test both tokens against the My Account API
+    const testToken = async (label: string, token: string | null) => {
+      if (!token) return { skipped: true };
+      try {
+        const res = await fetch(
+          `https://${domain}/me/v1/connected-accounts/accounts`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const text = await res.text();
+        return { status: res.status, body: text.slice(0, 300) };
+      } catch (e: any) {
+        return { error: e.message };
+      }
+    };
 
-    // Step 3: Test listing available connections
-    let connectionsResult: any = null;
-    if (token) {
-      const res = await fetch(
-        `https://${domain}/me/v1/connected-accounts/connections`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const text = await res.text();
-      connectionsResult = {
-        status: res.status,
-        body: text.slice(0, 500),
-      };
-    }
-
-    // Step 4: Test connect initiation
-    let connectResult: any = null;
-    if (token) {
-      const res = await fetch(
-        `https://${domain}/me/v1/connected-accounts/connect`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            connection: "google-oauth2",
-            redirect_uri: `${baseUrl}/api/services/connect/callback`,
-            state: "debug-test",
-            scopes: ["openid", "profile", "email"],
-          }),
-        }
-      );
-      const text = await res.text();
-      connectResult = {
-        status: res.status,
-        body: text.slice(0, 500),
-      };
-    }
+    const rawTokenTest = await testToken("raw", rawToken);
+    const sdkTokenTest = await testToken("sdk", sdkToken);
 
     return NextResponse.json({
       user: session.user.sub,
-      hasRefreshToken: !!refreshToken,
       sessionScopes: session.tokenSet.scope,
-      tokenExchangeResult,
-      listResult,
-      connectionsResult,
-      connectResult,
+      rawToken: { preview: rawPreview, length: rawToken?.length },
+      sdkTokenResult,
+      rawTokenTest,
+      sdkTokenTest,
     });
   } catch (e: any) {
     return NextResponse.json({

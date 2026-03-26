@@ -89,19 +89,19 @@ export async function getServiceToken(service: string): Promise<string> {
 }
 
 /**
- * Get a My Account API access token.
- * The session access token is already scoped for /me/ audience (set in auth0.ts).
+ * Get a My Account API access token using the SDK's getAccessToken method.
+ * This properly handles MRRT token exchange for the /me/ audience.
  */
 export async function getMyAccountToken(): Promise<string> {
-  const session = await auth0.getSession();
-  if (!session) {
-    throw new Error("No active session");
+  const domain = process.env.AUTH0_DOMAIN!;
+  const tokenResponse = await auth0.getAccessToken({
+    audience: `https://${domain}/me/`,
+    scope: "create:me:connected_accounts read:me:connected_accounts delete:me:connected_accounts",
+  });
+
+  if (!tokenResponse.token) {
+    throw new Error("No access token returned from getAccessToken");
   }
 
-  const accessToken = session.tokenSet.accessToken;
-  if (!accessToken) {
-    throw new Error("No access token in session");
-  }
-
-  return accessToken;
+  return tokenResponse.token;
 }
