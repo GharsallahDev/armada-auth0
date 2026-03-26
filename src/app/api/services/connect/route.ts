@@ -76,7 +76,7 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
   if (!res.ok) {
     console.error("Connected Accounts connect failed:", data);
     throw new Error(
-      data.error_description || data.error || "Failed to initiate connection"
+      `Auth0 Connected Accounts error (${res.status}): ${JSON.stringify(data)}`
     );
   }
 

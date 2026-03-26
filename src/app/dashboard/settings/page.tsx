@@ -5,7 +5,7 @@ import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle, ExternalLink, Settings, Shield,
+  CheckCircle, Settings, Shield,
   Link2, Lock, Search, ChevronDown,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -46,28 +46,14 @@ export default function SettingsPage() {
     return connectedServices?.some((s) => s.provider === provider) || false;
   };
 
-  const oauthProviders = ["google", "github", "discord", "facebook", "apple", "microsoft", "linkedin", "twitter", "spotify", "twitch", "figma", "shopify", "gitlab", "bitbucket", "notion", "atlassian", "zoom", "salesforce", "hubspot"];
-
+  // Only providers that are actually configured in Auth0 dashboard
   const TOKEN_VAULT_CONNECTIONS: Record<string, string> = {
     google: "google-oauth2",
     github: "github",
-    discord: "discord",
     slack: "Sign-in-with-Slack",
+    stripe: "Stripe-Connect",
     linkedin: "linkedin",
     shopify: "shopify",
-    stripe: "Stripe-Connect",
-    spotify: "spotify",
-    facebook: "facebook",
-    twitter: "twitter",
-    twitch: "twitch",
-    dropbox: "dropbox",
-    paypal: "paypal",
-    microsoft: "windowslive",
-    apple: "apple",
-    bitbucket: "bitbucket",
-    box: "box",
-    salesforce: "salesforce",
-    figma: "figma",
   };
 
   const getConnectUrl = (id: string) => {
@@ -75,6 +61,8 @@ export default function SettingsPage() {
     if (connection) return `/api/services/connect?connection=${connection}`;
     return null;
   };
+
+  const isAvailable = (id: string) => id in TOKEN_VAULT_CONNECTIONS;
 
   const filteredConnections = search
     ? AUTH0_SOCIAL_CONNECTIONS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
@@ -175,6 +163,7 @@ export default function SettingsPage() {
                   const connectionsInCat = filteredConnections.filter((c) => c.category === cat);
                   const isExpanded = expandedCategories.includes(cat) || search.length > 0;
                   const connectedCount = connectionsInCat.filter((c) => isConnected(c.id)).length;
+                  const availableCount = connectionsInCat.filter((c) => isAvailable(c.id)).length;
 
                   return (
                     <div key={cat} className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
@@ -186,9 +175,14 @@ export default function SettingsPage() {
                           <h3 className="text-[13px] font-semibold text-foreground">
                             {CATEGORY_LABELS[cat] || cat}
                           </h3>
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">
-                            {connectedCount}/{connectionsInCat.length} connected
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
+                            {availableCount} available
                           </span>
+                          {connectedCount > 0 && (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              {connectedCount} connected
+                            </span>
+                          )}
                         </div>
                         <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
                       </button>
@@ -208,6 +202,7 @@ export default function SettingsPage() {
                                   key={connection.id}
                                   connection={connection}
                                   connected={isConnected(connection.id)}
+                                  available={isAvailable(connection.id)}
                                   connectUrl={getConnectUrl(connection.id)}
                                 />
                               ))}
@@ -312,16 +307,24 @@ export default function SettingsPage() {
 function ConnectionCard({
   connection,
   connected,
+  available,
   connectUrl,
 }: {
   connection: SocialConnection;
   connected: boolean;
+  available: boolean;
   connectUrl: string | null;
 }) {
   return (
-    <div className="group flex items-center justify-between px-3.5 py-3 rounded-xl border border-border/30 bg-card/30 hover:bg-muted/30 hover:border-border/50 transition-all">
+    <div className={`group flex items-center justify-between px-3.5 py-3 rounded-xl border transition-all ${
+      available
+        ? "border-border/30 bg-card/30 hover:bg-muted/30 hover:border-border/50"
+        : "border-border/20 bg-card/10 opacity-50"
+    }`}>
       <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/50 border border-border/30">
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center border border-border/30 ${
+          available ? "bg-muted/50" : "bg-muted/20 grayscale"
+        }`}>
           <SocialIcon id={connection.id} className="h-4 w-4" />
         </div>
         <div>
@@ -335,7 +338,7 @@ function ConnectionCard({
           </div>
         </div>
       </div>
-      {connectUrl ? (
+      {available && connectUrl ? (
         <a
           href={connectUrl}
           className={`text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all ${
@@ -346,6 +349,10 @@ function ConnectionCard({
         >
           {connected ? "Reconnect" : "Connect"}
         </a>
+      ) : !available ? (
+        <span className="text-[9px] px-2 py-0.5 rounded-md bg-muted/20 text-muted-foreground/60 border border-border/20">
+          Coming Soon
+        </span>
       ) : (
         <span className={`text-[9px] px-2 py-0.5 rounded-md ${connected ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-muted/30 text-muted-foreground border border-border/30"}`}>
           {connected ? "Active" : "Available"}
