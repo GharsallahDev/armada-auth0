@@ -47,12 +47,24 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
 
   const token = await getMyAccountToken();
 
+  // Debug: check what token looks like
+  if (!token || typeof token !== "string" || token.length < 10) {
+    throw new Error(`Invalid My Account token: type=${typeof token}, length=${token?.length}, preview=${String(token).slice(0, 20)}`);
+  }
+
   const defaultScopes = DEFAULT_SCOPES[connection] || [];
   const mergedScopes = Array.from(
     new Set([...defaultScopes, ...(additionalScopes || [])])
   );
 
   const state = crypto.randomUUID();
+
+  const requestBody = {
+    connection,
+    redirect_uri: `${baseUrl}/api/services/connect/callback`,
+    state,
+    scopes: mergedScopes,
+  };
 
   const res = await fetch(
     `https://${domain}/me/v1/connected-accounts/connect`,
@@ -62,12 +74,7 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        connection,
-        redirect_uri: `${baseUrl}/api/services/connect/callback`,
-        state,
-        scopes: mergedScopes,
-      }),
+      body: JSON.stringify(requestBody),
     }
   );
 
@@ -76,7 +83,7 @@ async function initiateConnect(connection: string, additionalScopes?: string[]) 
   if (!res.ok) {
     console.error("Connected Accounts connect failed:", data);
     throw new Error(
-      `Auth0 Connected Accounts error (${res.status}): ${JSON.stringify(data)}`
+      `Auth0 Connected Accounts error (${res.status}): ${JSON.stringify(data)} | token_preview: ${token.slice(0, 15)}... | request: ${JSON.stringify(requestBody)}`
     );
   }
 
