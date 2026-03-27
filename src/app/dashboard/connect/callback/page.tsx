@@ -9,11 +9,18 @@ export default function ConnectCallbackPage() {
 
   useEffect(() => {
     async function completeConnection() {
-      // Extract connect_code from URL fragment (#connect_code=...)
+      // Auth0 may return connect_code in fragment (#connect_code=...) or query params (?connect_code=...)
       const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const connectCode = params.get("connect_code");
-      const state = params.get("state");
+      const hashParams = new URLSearchParams(hash);
+      const queryParams = new URLSearchParams(window.location.search);
+
+      const connectCode = hashParams.get("connect_code") || queryParams.get("connect_code");
+      const state = hashParams.get("state") || queryParams.get("state");
+
+      console.log("[Connect Callback] URL:", window.location.href);
+      console.log("[Connect Callback] Hash:", window.location.hash);
+      console.log("[Connect Callback] Search:", window.location.search);
+      console.log("[Connect Callback] connect_code:", connectCode);
 
       if (!connectCode) {
         setStatus("Missing connect_code. Connection may have been cancelled.");

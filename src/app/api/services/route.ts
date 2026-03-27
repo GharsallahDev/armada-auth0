@@ -26,7 +26,9 @@ export async function GET(req: NextRequest) {
     );
 
     if (res.ok) {
-      const accounts = await res.json();
+      const data = await res.json();
+      // Auth0 wraps accounts in { accounts: [...] }
+      const accounts = Array.isArray(data) ? data : data.accounts || [];
 
       return NextResponse.json(
         accounts.map(

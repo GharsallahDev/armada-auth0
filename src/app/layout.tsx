@@ -43,8 +43,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      // @ts-expect-error next-themes requires suppressHydrationMismatch on html
-      suppressHydrationMismatch
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>

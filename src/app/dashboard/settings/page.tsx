@@ -42,16 +42,23 @@ export default function SettingsPage() {
   const [search, setSearch] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<string[]>(["popular"]);
 
-  const isConnected = (provider: string) => {
-    return connectedServices?.some((s) => s.provider === provider) || false;
-  };
-
   // Only providers with "Connected Accounts for Token Vault" enabled in Auth0
   const TOKEN_VAULT_CONNECTIONS: Record<string, string> = {
     google: "google-oauth2",
     github: "github",
     slack: "sign-in-with-slack",
     stripe: "stripe",
+  };
+
+  // Reverse map: Auth0 connection name -> our provider id
+  const CONNECTION_TO_ID: Record<string, string> = Object.fromEntries(
+    Object.entries(TOKEN_VAULT_CONNECTIONS).map(([id, conn]) => [conn, id])
+  );
+
+  const isConnected = (provider: string) => {
+    return connectedServices?.some(
+      (s) => s.provider === provider || CONNECTION_TO_ID[s.provider] === provider
+    ) || false;
   };
 
   // Providers configured for Authentication only (no Token Vault)
