@@ -5,18 +5,63 @@ import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle, Settings, Shield,
-  Link2, Lock, Search, ChevronDown,
+  CheckCircle, Settings, Shield, AlertTriangle, Unplug, Loader2,
+  Link2, Lock, Search, ChevronDown, UserX,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import {
   AUTH0_SOCIAL_CONNECTIONS,
   CATEGORY_LABELS,
   SocialIcon,
   type SocialConnection,
 } from "@/lib/social-icons";
+import { SERVICE_DISPLAY } from "@/lib/trust/levels";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+// Provider ID -> Auth0 connection name (Token Vault enabled)
+const TOKEN_VAULT_CONNECTIONS: Record<string, string> = {
+  google: "google-oauth2",
+  github: "github",
+  slack: "sign-in-with-slack",
+  stripe: "stripe",
+};
+
+// Auth0 connection name -> Provider ID
+const CONNECTION_TO_ID: Record<string, string> = Object.fromEntries(
+  Object.entries(TOKEN_VAULT_CONNECTIONS).map(([id, conn]) => [conn, id])
+);
+
+// Provider -> services it powers (same as HireWizard)
+const PROVIDER_TO_SERVICES: Record<string, string[]> = {
+  google: ["gmail", "calendar", "drive"],
+  github: ["github"],
+  slack: ["slack"],
+  stripe: ["stripe"],
+};
+
+// Providers configured for Authentication only (no Token Vault)
+const AUTH_ONLY_CONNECTIONS = new Set(["linkedin", "shopify"]);
+
+interface ConnectedService {
+  provider: string;
+  connected: boolean;
+  connectedAt?: string;
+  connectionId?: string;
+}
+
+interface Agent {
+  name: string;
+  slug: string;
+  role: string;
+  services: string[];
+  status: string;
+  avatarGradient: string;
+}
 
 const tabs = [
   { id: "connections", label: "Connections", icon: Link2 },
@@ -37,32 +82,23 @@ const trustConfig = [
 export default function SettingsPage() {
   const params = useSearchParams();
   const justConnected = params.get("connected");
-  const { data: connectedServices } = useSWR<{ provider: string; connected: boolean }[]>("/api/services", fetcher);
+  const { data: connectedServices, mutate: mutateServices } = useSWR<ConnectedService[]>("/api/services", fetcher);
+  const { data: allAgents } = useSWR<Agent[]>("/api/agents", fetcher);
   const [activeTab, setActiveTab] = useState<TabId>("connections");
   const [search, setSearch] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<string[]>(["popular"]);
+  const [disconnectTarget, setDisconnectTarget] = useState<{ providerId: string; connectionId: string; providerName: string } | null>(null);
+  const [disconnecting, setDisconnecting] = useState(false);
 
-  // Only providers with "Connected Accounts for Token Vault" enabled in Auth0
-  const TOKEN_VAULT_CONNECTIONS: Record<string, string> = {
-    google: "google-oauth2",
-    github: "github",
-    slack: "sign-in-with-slack",
-    stripe: "stripe",
+  const activeAgents = allAgents?.filter((a) => a.status === "active") || [];
+
+  const getConnectionInfo = (providerId: string): ConnectedService | undefined => {
+    return connectedServices?.find(
+      (s) => s.provider === providerId || CONNECTION_TO_ID[s.provider] === providerId
+    );
   };
 
-  // Reverse map: Auth0 connection name -> our provider id
-  const CONNECTION_TO_ID: Record<string, string> = Object.fromEntries(
-    Object.entries(TOKEN_VAULT_CONNECTIONS).map(([id, conn]) => [conn, id])
-  );
-
-  const isConnected = (provider: string) => {
-    return connectedServices?.some(
-      (s) => s.provider === provider || CONNECTION_TO_ID[s.provider] === provider
-    ) || false;
-  };
-
-  // Providers configured for Authentication only (no Token Vault)
-  const AUTH_ONLY_CONNECTIONS = new Set(["linkedin", "shopify"]);
+  const isConnected = (providerId: string) => !!getConnectionInfo(providerId);
 
   const getConnectUrl = (id: string) => {
     const connection = TOKEN_VAULT_CONNECTIONS[id];
@@ -71,6 +107,63 @@ export default function SettingsPage() {
   };
 
   const isAvailable = (id: string) => id in TOKEN_VAULT_CONNECTIONS;
+
+  // Find agents that will be affected by disconnecting a provider
+  function getAffectedAgents(providerId: string): { agent: Agent; lostServices: string[] }[] {
+    const services = PROVIDER_TO_SERVICES[providerId] || [providerId];
+    const affected: { agent: Agent; lostServices: string[] }[] = [];
+
+    for (const agent of activeAgents) {
+      const lostServices = agent.services.filter((s) => services.includes(s));
+      if (lostServices.length > 0) {
+        affected.push({ agent, lostServices });
+      }
+    }
+    return affected;
+  }
+
+  async function handleDisconnect() {
+    if (!disconnectTarget) return;
+    setDisconnecting(true);
+
+    try {
+      // 1. Delete from Auth0 Token Vault
+      const res = await fetch(`/api/services/${disconnectTarget.connectionId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to disconnect");
+      }
+
+      // 2. Remove affected services from agents
+      const services = PROVIDER_TO_SERVICES[disconnectTarget.providerId] || [disconnectTarget.providerId];
+      const affected = getAffectedAgents(disconnectTarget.providerId);
+
+      for (const { agent } of affected) {
+        const updatedServices = agent.services.filter((s) => !services.includes(s));
+        await fetch(`/api/agents/${agent.slug}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ services: updatedServices }),
+        });
+      }
+
+      // 3. Refresh data
+      mutateServices();
+      setDisconnectTarget(null);
+    } catch (err) {
+      console.error("Disconnect error:", err);
+    } finally {
+      setDisconnecting(false);
+    }
+  }
+
+  function onDisconnectClick(providerId: string, providerName: string) {
+    const info = getConnectionInfo(providerId);
+    if (!info?.connectionId) return;
+    setDisconnectTarget({ providerId, connectionId: info.connectionId, providerName });
+  }
+
+  const affectedAgents = disconnectTarget ? getAffectedAgents(disconnectTarget.providerId) : [];
 
   const filteredConnections = search
     ? AUTH0_SOCIAL_CONNECTIONS.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
@@ -213,6 +306,7 @@ export default function SettingsPage() {
                                   available={isAvailable(connection.id)}
                                   authOnly={AUTH_ONLY_CONNECTIONS.has(connection.id)}
                                   connectUrl={getConnectUrl(connection.id)}
+                                  onDisconnect={() => onDisconnectClick(connection.id, connection.name)}
                                 />
                               ))}
                             </div>
@@ -309,6 +403,103 @@ export default function SettingsPage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Disconnect Confirmation Dialog */}
+      <Dialog open={!!disconnectTarget} onOpenChange={(open) => { if (!open) setDisconnectTarget(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Unplug className="h-5 w-5 text-red-400" />
+              Disconnect {disconnectTarget?.providerName}
+            </DialogTitle>
+            <DialogDescription>
+              This will revoke access to {disconnectTarget?.providerName} and remove its tokens from Auth0 Token Vault.
+            </DialogDescription>
+          </DialogHeader>
+
+          {affectedAgents.length > 0 && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
+                <p className="text-[12px] text-red-300 font-medium">
+                  {affectedAgents.length} employee{affectedAgents.length > 1 ? "s" : ""} will lose access to tools
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                {affectedAgents.map(({ agent, lostServices }) => (
+                  <div
+                    key={agent.slug}
+                    className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-background/50 border border-border/30"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`h-7 w-7 rounded-lg bg-gradient-to-br ${agent.avatarGradient} flex items-center justify-center`}>
+                        <span className="text-[10px] font-bold text-white">
+                          {agent.name.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[12px] font-medium text-foreground block leading-tight">{agent.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{agent.role}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 flex-wrap justify-end">
+                      {lostServices.map((svc) => (
+                        <span
+                          key={svc}
+                          className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20 flex items-center gap-0.5"
+                        >
+                          <UserX className="h-2.5 w-2.5" />
+                          {SERVICE_DISPLAY[svc]?.label || svc}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                These employees will have the affected tools removed from their permissions. They will no longer be able to perform actions using {disconnectTarget?.providerName}.
+              </p>
+            </div>
+          )}
+
+          {affectedAgents.length === 0 && (
+            <div className="rounded-xl border border-border/30 bg-muted/20 p-4">
+              <p className="text-[12px] text-muted-foreground">
+                No employees are currently using {disconnectTarget?.providerName} tools. Safe to disconnect.
+              </p>
+            </div>
+          )}
+
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" size="sm" />}>
+              Cancel
+            </DialogClose>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDisconnect}
+              disabled={disconnecting}
+            >
+              {disconnecting ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                  Disconnecting...
+                </>
+              ) : (
+                <>
+                  <Unplug className="h-3.5 w-3.5 mr-1.5" />
+                  {affectedAgents.length > 0
+                    ? `Disconnect & Revoke ${affectedAgents.length} Employee${affectedAgents.length > 1 ? "s" : ""}`
+                    : "Disconnect"
+                  }
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -319,17 +510,21 @@ function ConnectionCard({
   available,
   authOnly,
   connectUrl,
+  onDisconnect,
 }: {
   connection: SocialConnection;
   connected: boolean;
   available: boolean;
   authOnly: boolean;
   connectUrl: string | null;
+  onDisconnect: () => void;
 }) {
   return (
     <div className={`group flex items-center justify-between px-3.5 py-3 rounded-xl border transition-all ${
       available
-        ? "border-border/30 bg-card/30 hover:bg-muted/30 hover:border-border/50"
+        ? connected
+          ? "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10"
+          : "border-border/30 bg-card/30 hover:bg-muted/30 hover:border-border/50"
         : authOnly
           ? "border-border/20 bg-card/20 opacity-70"
           : "border-border/20 bg-card/10 opacity-40"
@@ -351,16 +546,19 @@ function ConnectionCard({
           </div>
         </div>
       </div>
-      {available && connectUrl ? (
+      {available && connected ? (
+        <button
+          onClick={onDisconnect}
+          className="text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all text-red-400/70 border border-red-500/20 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+        >
+          Disconnect
+        </button>
+      ) : available && connectUrl ? (
         <a
           href={connectUrl}
-          className={`text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all ${
-            connected
-              ? "text-muted-foreground border border-border/30 hover:bg-muted/50"
-              : "text-primary bg-primary/5 border border-primary/20 hover:bg-primary/10"
-          }`}
+          className="text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all text-primary bg-primary/5 border border-primary/20 hover:bg-primary/10"
         >
-          {connected ? "Reconnect" : "Connect"}
+          Connect
         </a>
       ) : authOnly ? (
         <span className="text-[9px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
