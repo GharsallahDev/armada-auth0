@@ -7,6 +7,7 @@ import {
   Smartphone, CheckCircle, XCircle, Clock, AlertTriangle,
   Shield, Bell, ArrowUpRight, Filter, Loader2,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -42,7 +43,7 @@ interface CibaRequest {
 type FilterTab = "all" | "pending" | "approved" | "denied";
 
 export default function ApprovalsPage() {
-  const { data: requests, mutate } = useSWR<CibaRequest[]>("/api/ciba", fetcher, { refreshInterval: 3000 });
+  const { data: requests, isLoading, mutate } = useSWR<CibaRequest[]>("/api/ciba", fetcher, { refreshInterval: 3000 });
   const [filter, setFilter] = useState<FilterTab>("all");
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -99,6 +100,40 @@ export default function ApprovalsPage() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8  space-y-6">
+        {isLoading ? (
+          <div className="space-y-6">
+            {/* Skeleton stat cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border/30 bg-card/30 p-4 flex items-center gap-3">
+                  <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Skeleton approval request items */}
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-xl border border-border/30 bg-card/30 px-5 py-4 flex items-start gap-4">
+                  <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-44" />
+                    <Skeleton className="h-3 w-full max-w-md" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3 w-14" />
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-4 w-16 rounded-md" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           {[
@@ -265,6 +300,8 @@ export default function ApprovalsPage() {
             </motion.div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );

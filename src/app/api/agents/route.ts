@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { name, role, instructions, services } = body;
+  const { name, role, instructions, services, avatarUrl } = body;
 
   if (!name || !role || !instructions || !services?.length) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
     name,
     slug,
     avatarGradient: gradient,
+    avatarUrl: avatarUrl || null,
     role,
     instructions,
     services,

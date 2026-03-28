@@ -9,7 +9,7 @@ import {
   ArrowRight, ArrowLeft, Sparkles, Check, Loader2, Search, ChevronDown,
   Code, BarChart3, Paintbrush, Headphones, Megaphone, FileText,
   Database, ShieldCheck, Workflow, Bot, BrainCircuit, GraduationCap,
-  Dices, RefreshCw, User,
+  Dices, RefreshCw, User, TrendingUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -184,6 +184,16 @@ const ROLE_TEMPLATES = [
     defaultServices: ["gmail", "calendar", "slack"],
   },
   {
+    id: "sales",
+    icon: TrendingUp,
+    title: "Sales Development",
+    role: "Sales Development Representative",
+    gradient: "from-orange-500 to-amber-500",
+    description: "Lead management, customer outreach, payment tracking",
+    instructions: "You are a sales development representative. Manage customer relationships via email, track invoices and payments in Stripe, schedule meetings with prospects, and follow up with leads. Be proactive and maintain strong customer relationships.",
+    defaultServices: ["gmail", "stripe", "calendar"],
+  },
+  {
     id: "custom",
     icon: FileText,
     title: "Custom Role",
@@ -286,7 +296,7 @@ export function HireWizard({ connectedProviders }: HireWizardProps) {
       const res = await fetch("/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, role, instructions, services: selectedServices }),
+        body: JSON.stringify({ name, role, instructions, services: selectedServices, avatarUrl }),
       });
       if (!res.ok) {
         const data = await res.json();

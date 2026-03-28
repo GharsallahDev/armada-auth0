@@ -4,12 +4,13 @@ import { connectedServices } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function GET(request: Request) {
+  const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000";
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
 
   if (!code || !state) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=missing_params`);
+    return NextResponse.redirect(`${baseUrl}/dashboard/settings?error=missing_params`);
   }
 
   let userId: string;
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     const decoded = JSON.parse(Buffer.from(state, "base64url").toString());
     userId = decoded.userId;
   } catch {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=invalid_state`);
+    return NextResponse.redirect(`${baseUrl}/dashboard/settings?error=invalid_state`);
   }
 
   // Exchange code for token
@@ -33,7 +34,7 @@ export async function GET(request: Request) {
 
   const tokenData = await tokenRes.json();
   if (tokenData.error) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?error=token_exchange_failed`);
+    return NextResponse.redirect(`${baseUrl}/dashboard/settings?error=token_exchange_failed`);
   }
 
   // Upsert connected service
@@ -56,5 +57,5 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings?connected=github`);
+  return NextResponse.redirect(`${baseUrl}/dashboard/settings?connected=github`);
 }

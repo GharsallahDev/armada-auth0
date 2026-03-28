@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { UserPlus, Users, TrendingUp, Activity, Sparkles, Shield, ArrowRight } from "lucide-react";
 import { AgentCard } from "@/components/dashboard/AgentCard";
 import { KillSwitch } from "@/components/dashboard/KillSwitch";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -21,7 +22,7 @@ interface Agent {
 }
 
 export default function DashboardPage() {
-  const { data: agents } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 5000 });
+  const { data: agents, isLoading } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 5000 });
   const { data: trustData, mutate: mutateTrust } = useSWR<Record<string, { score: number; level: number; decayedScore: number }>>("/api/trust", fetcher, { refreshInterval: 5000 });
   const { data: activity } = useSWR("/api/audit?type=activity&limit=20", fetcher);
 
@@ -61,7 +62,53 @@ export default function DashboardPage() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-8">
-        {hasEmployees ? (
+        {isLoading ? (
+          <>
+            {/* Skeleton Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-xl p-5">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-11 w-11 rounded-xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-7 w-16" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Skeleton Agent Cards */}
+            <section>
+              <div className="flex items-center justify-between mb-5">
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-xl p-5 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-11 w-11 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-2 w-full rounded-full" />
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                    <div className="flex gap-2">
+                      <Skeleton className="h-6 w-16 rounded-md" />
+                      <Skeleton className="h-6 w-14 rounded-md" />
+                      <Skeleton className="h-6 w-18 rounded-md" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : hasEmployees ? (
           <>
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

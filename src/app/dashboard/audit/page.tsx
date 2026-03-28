@@ -7,6 +7,7 @@ import {
   Shield, CheckCircle, XCircle, Clock, ScrollText, Activity,
   ArrowUpRight, AlertTriangle, Zap, Filter,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -43,7 +44,7 @@ interface AuditLog {
 type FilterType = "all" | "success" | "failed" | "ciba";
 
 export default function AuditPage() {
-  const { data: logs } = useSWR<AuditLog[]>("/api/audit?limit=100", fetcher, { refreshInterval: 5000 });
+  const { data: logs, isLoading } = useSWR<AuditLog[]>("/api/audit?limit=100", fetcher, { refreshInterval: 5000 });
   const [filter, setFilter] = useState<FilterType>("all");
 
   const totalActions = logs?.length || 0;
@@ -94,6 +95,40 @@ export default function AuditPage() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        {isLoading ? (
+          <div className="space-y-6">
+            {/* Skeleton stat cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border/30 bg-card/30 p-4 flex items-center gap-3">
+                  <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Skeleton audit log items */}
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-xl border border-border/30 bg-card/30 px-5 py-4 flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-3.5 w-48" />
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-3 w-14" />
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-4 w-16 rounded-md" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-6 w-10 rounded-lg shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Stats — same style as Tasks/Approvals */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map((stat, i) => (
@@ -232,6 +267,8 @@ export default function AuditPage() {
             </motion.div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );

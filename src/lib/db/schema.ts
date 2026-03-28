@@ -90,6 +90,7 @@ export const agents = pgTable("agents", {
   name: text("name").notNull(),
   slug: text("slug").notNull(),
   avatarGradient: text("avatar_gradient").default("from-indigo-500 to-violet-500"),
+  avatarUrl: text("avatar_url"),
   role: text("role").notNull(),
   instructions: text("instructions").notNull(),
   services: jsonb("services").notNull().$defaultFn(() => []),
@@ -100,3 +101,12 @@ export const agents = pgTable("agents", {
 }, (table) => [
   uniqueIndex("agents_user_slug_idx").on(table.userId, table.slug),
 ]);
+
+export const chatMessages = pgTable("chat_messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull(),
+  agentSlug: text("agent_slug").notNull(),
+  role: text("role").notNull(), // user | assistant
+  parts: jsonb("parts").notNull(), // UIMessage parts array
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

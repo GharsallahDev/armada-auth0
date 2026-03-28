@@ -12,7 +12,12 @@ const DEFAULT_SCOPES: Record<string, string[]> = {
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/calendar",
     "https://www.googleapis.com/auth/calendar.events",
+    "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/documents",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/contacts.readonly",
+    "https://www.googleapis.com/auth/tasks",
   ],
   github: ["read:user", "repo", "read:org"],
   discord: ["identify", "guilds", "guilds.members.read"],
@@ -36,7 +41,7 @@ const DEFAULT_SCOPES: Record<string, string[]> = {
 };
 
 function getBaseUrl() {
-  if (process.env.APP_BASE_URL && process.env.APP_BASE_URL !== "http://localhost:3002") {
+  if (process.env.APP_BASE_URL && process.env.APP_BASE_URL !== "http://localhost:3000") {
     return process.env.APP_BASE_URL;
   }
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
@@ -45,7 +50,7 @@ function getBaseUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  return process.env.APP_BASE_URL || "http://localhost:3002";
+  return process.env.APP_BASE_URL || "http://localhost:3000";
 }
 
 async function initiateConnect(connection: string, additionalScopes?: string[]) {

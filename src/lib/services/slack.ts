@@ -39,7 +39,16 @@ export async function listChannels(limit = 20) {
   }));
 }
 
+export async function joinChannel(channelId: string) {
+  try {
+    await slackApi("conversations.join", { channel: channelId });
+  } catch {
+    // Already in channel or can't join — continue anyway
+  }
+}
+
 export async function readMessages(channelId: string, limit = 10) {
+  await joinChannel(channelId);
   const data = await slackApi("conversations.history", {
     channel: channelId,
     limit,

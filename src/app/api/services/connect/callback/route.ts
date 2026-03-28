@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 
 function getBaseUrl() {
-  if (process.env.APP_BASE_URL && process.env.APP_BASE_URL !== "http://localhost:3002") {
+  if (process.env.APP_BASE_URL && process.env.APP_BASE_URL !== "http://localhost:3000") {
     return process.env.APP_BASE_URL;
   }
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
@@ -15,7 +15,7 @@ function getBaseUrl() {
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  return process.env.APP_BASE_URL || "http://localhost:3002";
+  return process.env.APP_BASE_URL || "http://localhost:3000";
 }
 
 export async function POST(req: NextRequest) {

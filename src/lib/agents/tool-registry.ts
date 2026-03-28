@@ -14,8 +14,11 @@ import * as github from "@/lib/services/github";
 import * as discord from "@/lib/services/discord";
 import * as linkedin from "@/lib/services/linkedin";
 import * as shopify from "@/lib/services/shopify";
+import * as sheets from "@/lib/services/sheets";
+import * as contacts from "@/lib/services/contacts";
+import * as tasks from "@/lib/services/tasks";
 
-export type ServiceName = "gmail" | "calendar" | "drive" | "slack" | "stripe" | "github" | "discord" | "linkedin" | "shopify";
+export type ServiceName = "gmail" | "calendar" | "drive" | "slack" | "stripe" | "github" | "discord" | "linkedin" | "shopify" | "sheets" | "contacts" | "tasks";
 
 function withTrustCheck(
   userId: string,
@@ -95,10 +98,14 @@ function gmailTools(userId: string, agentSlug: string) {
 function calendarTools(userId: string, agentSlug: string) {
   return {
     calendar_list_events: tool({
-      description: "List upcoming calendar events",
-      inputSchema: z.object({ maxResults: z.number().optional().default(10) }),
+      description: "List upcoming calendar events. Use timeMin/timeMax to filter by date range (ISO 8601). For 'this week', set timeMax to end of the week.",
+      inputSchema: z.object({
+        maxResults: z.number().optional().default(10),
+        timeMin: z.string().optional().describe("Start of range in ISO 8601 (e.g. 2026-03-28T00:00:00Z). Defaults to now."),
+        timeMax: z.string().optional().describe("End of range in ISO 8601 (e.g. 2026-04-04T23:59:59Z). Omit to return all future events."),
+      }),
       execute: withTrustCheck(userId, agentSlug, "calendar", "read", "calendar_list_events",
-        async (params) => calendar.listEvents(userId, params.maxResults)),
+        async (params) => calendar.listEvents(userId, params.maxResults, params.timeMin, params.timeMax)),
     }),
     calendar_check_availability: tool({
       description: "Check availability for a specific date",
@@ -156,16 +163,28 @@ function slackTools(userId: string, agentSlug: string) {
         async () => slack.listChannels()),
     }),
     slack_read_messages: tool({
-      description: "Read recent messages from a Slack channel",
-      inputSchema: z.object({ channelId: z.string(), limit: z.number().optional().default(20) }),
+      description: "Read recent messages from a Slack channel. Pass the channel ID (from slack_list_channels) or channel name.",
+      inputSchema: z.object({ channel: z.string().describe("Channel ID (e.g. C0AMV9X2C59) or channel name (e.g. general)"), limit: z.number().optional().default(20) }),
       execute: withTrustCheck(userId, agentSlug, "slack", "read", "slack_read_messages",
-        async (params) => slack.readMessages(params.channelId, params.limit)),
+        async (params) => {
+          const id = params.channel.startsWith("C") && !params.channel.includes(" ") && params.channel.length > 5
+            ? params.channel
+            : (await slack.searchChannelByName(params.channel))?.id;
+          if (!id) return { error: `Channel "${params.channel}" not found. Use slack_list_channels to see available channels.` };
+          return slack.readMessages(id, params.limit);
+        }),
     }),
     slack_send_message: tool({
-      description: "Send a message to a Slack channel",
-      inputSchema: z.object({ channelId: z.string(), text: z.string() }),
+      description: "Send a message to a Slack channel. Pass the channel ID (from slack_list_channels) or channel name.",
+      inputSchema: z.object({ channel: z.string().describe("Channel ID or channel name"), text: z.string() }),
       execute: withTrustCheck(userId, agentSlug, "slack", "execute", "slack_send_message",
-        async (params) => slack.sendMessage(params.channelId, params.text)),
+        async (params) => {
+          const id = params.channel.startsWith("C") && !params.channel.includes(" ") && params.channel.length > 5
+            ? params.channel
+            : (await slack.searchChannelByName(params.channel))?.id;
+          if (!id) return { error: `Channel "${params.channel}" not found. Use slack_list_channels to see available channels.` };
+          return slack.sendMessage(id, params.text);
+        }),
     }),
   };
 }
@@ -327,6 +346,109 @@ function shopifyTools(userId: string, agentSlug: string) {
   };
 }
 
+function sheetsTools(userId: string, agentSlug: string) {
+  return {
+    sheets_list_spreadsheets: tool({
+      description: "List recent Google Sheets spreadsheets",
+      inputSchema: z.object({ maxResults: z.number().optional().default(10) }),
+      execute: withTrustCheck(userId, agentSlug, "sheets", "read", "sheets_list_spreadsheets",
+        async (params) => sheets.listSpreadsheets(userId, params.maxResults)),
+    }),
+    sheets_read_spreadsheet: tool({
+      description: "Read data from a Google Sheets spreadsheet",
+      inputSchema: z.object({
+        spreadsheetId: z.string().describe("The spreadsheet ID"),
+        range: z.string().optional().describe("Cell range like Sheet1!A1:D10"),
+      }),
+      execute: withTrustCheck(userId, agentSlug, "sheets", "read", "sheets_read_spreadsheet",
+        async (params) => sheets.readSpreadsheet(userId, params.spreadsheetId, params.range)),
+    }),
+    sheets_create_spreadsheet: tool({
+      description: "Create a new Google Sheets spreadsheet",
+      inputSchema: z.object({
+        title: z.string(),
+        headers: z.array(z.string()).optional().describe("Column headers"),
+        rows: z.array(z.array(z.string())).optional().describe("Initial data rows"),
+      }),
+      execute: withTrustCheck(userId, agentSlug, "sheets", "draft", "sheets_create_spreadsheet",
+        async (params) => sheets.createSpreadsheet(userId, params.title, params.headers, params.rows)),
+    }),
+    sheets_append_rows: tool({
+      description: "Append rows to an existing Google Sheets spreadsheet",
+      inputSchema: z.object({
+        spreadsheetId: z.string(),
+        range: z.string().default("Sheet1"),
+        rows: z.array(z.array(z.string())).describe("Rows of data to append"),
+      }),
+      execute: withTrustCheck(userId, agentSlug, "sheets", "draft", "sheets_append_rows",
+        async (params) => sheets.appendRows(userId, params.spreadsheetId, params.range, params.rows)),
+    }),
+  };
+}
+
+function contactsTools(userId: string, agentSlug: string) {
+  return {
+    contacts_list: tool({
+      description: "List Google contacts",
+      inputSchema: z.object({ maxResults: z.number().optional().default(20) }),
+      execute: withTrustCheck(userId, agentSlug, "contacts", "read", "contacts_list",
+        async (params) => contacts.listContacts(userId, params.maxResults)),
+    }),
+    contacts_search: tool({
+      description: "Search Google contacts by name, email, or company",
+      inputSchema: z.object({ query: z.string().describe("Search query") }),
+      execute: withTrustCheck(userId, agentSlug, "contacts", "read", "contacts_search",
+        async (params) => contacts.searchContacts(userId, params.query)),
+    }),
+    contacts_get: tool({
+      description: "Get detailed info about a specific contact",
+      inputSchema: z.object({ contactId: z.string().describe("The contact ID") }),
+      execute: withTrustCheck(userId, agentSlug, "contacts", "read", "contacts_get",
+        async (params) => contacts.getContact(userId, params.contactId)),
+    }),
+  };
+}
+
+function tasksTools(userId: string, agentSlug: string) {
+  return {
+    tasks_list_task_lists: tool({
+      description: "List all Google Tasks task lists",
+      inputSchema: z.object({}),
+      execute: withTrustCheck(userId, agentSlug, "tasks", "read", "tasks_list_task_lists",
+        async () => tasks.listTaskLists(userId)),
+    }),
+    tasks_list: tool({
+      description: "List tasks from a Google Tasks list",
+      inputSchema: z.object({
+        taskListId: z.string().optional().describe("Task list ID (defaults to primary)"),
+        maxResults: z.number().optional().default(20),
+      }),
+      execute: withTrustCheck(userId, agentSlug, "tasks", "read", "tasks_list",
+        async (params) => tasks.listTasks(userId, params.taskListId, params.maxResults)),
+    }),
+    tasks_create: tool({
+      description: "Create a new task in Google Tasks",
+      inputSchema: z.object({
+        title: z.string(),
+        notes: z.string().optional(),
+        due: z.string().optional().describe("Due date in YYYY-MM-DD format"),
+        taskListId: z.string().optional(),
+      }),
+      execute: withTrustCheck(userId, agentSlug, "tasks", "draft", "tasks_create",
+        async (params) => tasks.createTask(userId, params.title, params.notes, params.due, params.taskListId)),
+    }),
+    tasks_complete: tool({
+      description: "Mark a task as completed",
+      inputSchema: z.object({
+        taskId: z.string(),
+        taskListId: z.string().optional(),
+      }),
+      execute: withTrustCheck(userId, agentSlug, "tasks", "execute", "tasks_complete",
+        async (params) => tasks.completeTask(userId, params.taskId, params.taskListId)),
+    }),
+  };
+}
+
 const SERVICE_TOOL_FACTORIES: Record<ServiceName, (userId: string, agentSlug: string) => Record<string, any>> = {
   gmail: gmailTools,
   calendar: calendarTools,
@@ -337,6 +459,9 @@ const SERVICE_TOOL_FACTORIES: Record<ServiceName, (userId: string, agentSlug: st
   discord: discordTools,
   linkedin: linkedinTools,
   shopify: shopifyTools,
+  sheets: sheetsTools,
+  contacts: contactsTools,
+  tasks: tasksTools,
 };
 
 export function buildAgentTools(userId: string, agentSlug: string, services: ServiceName[]): Record<string, any> {
@@ -389,6 +514,17 @@ export function getToolDisplayMap(services: ServiceName[]): Record<string, { ser
     shopify_list_products: { service: "shopify", label: "Listing products" },
     shopify_list_orders: { service: "shopify", label: "Listing orders" },
     shopify_get_product: { service: "shopify", label: "Getting product" },
+    sheets_list_spreadsheets: { service: "sheets", label: "Listing spreadsheets" },
+    sheets_read_spreadsheet: { service: "sheets", label: "Reading spreadsheet" },
+    sheets_create_spreadsheet: { service: "sheets", label: "Creating spreadsheet" },
+    sheets_append_rows: { service: "sheets", label: "Appending rows" },
+    contacts_list: { service: "contacts", label: "Listing contacts" },
+    contacts_search: { service: "contacts", label: "Searching contacts" },
+    contacts_get: { service: "contacts", label: "Getting contact" },
+    tasks_list_task_lists: { service: "tasks", label: "Listing task lists" },
+    tasks_list: { service: "tasks", label: "Listing tasks" },
+    tasks_create: { service: "tasks", label: "Creating task" },
+    tasks_complete: { service: "tasks", label: "Completing task" },
   };
   for (const [name, meta] of Object.entries(toolMeta)) {
     if (services.includes(meta.service as ServiceName)) {

@@ -69,6 +69,9 @@ export async function createAgentStream(
 
   return streamText({
     model: google("gemini-2.5-flash"),
+    providerOptions: {
+      google: { thinkingConfig: { thinkingBudget: 0 } },
+    },
     system: systemPrompt,
     messages,
     tools: agentTools,

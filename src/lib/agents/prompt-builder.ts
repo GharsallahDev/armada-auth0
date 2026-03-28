@@ -11,6 +11,9 @@ const SERVICE_DESCRIPTIONS: Record<ServiceName, string> = {
   discord: "Discord (list servers, channels, read and send messages)",
   linkedin: "LinkedIn (view profile, create posts, view connections)",
   shopify: "Shopify (list products, orders, get product details)",
+  sheets: "Google Sheets (list, read, create spreadsheets; append rows)",
+  contacts: "Google Contacts (list, search, get contact details)",
+  tasks: "Google Tasks (list task lists, list tasks, create and complete tasks)",
 };
 
 export function buildSystemPrompt(agent: {
@@ -26,7 +29,14 @@ export function buildSystemPrompt(agent: {
 
   const levelName = TRUST_LEVEL_NAMES[agent.trustLevel as keyof typeof TRUST_LEVEL_NAMES] || "Unknown";
 
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+  const dayOfWeek = now.toLocaleDateString("en-US", { weekday: "long" });
+
   return `You are ${agent.name}, an AI employee with the role of ${agent.role}.
+
+## Current Date
+Today is ${dayOfWeek}, ${todayStr}. Use this to compute date ranges when the user says "today", "this week", "this month", etc. Always pass timeMin/timeMax parameters to calendar tools when a date range is mentioned.
 
 ## Your Job Description
 ${agent.instructions}
@@ -44,10 +54,11 @@ Trust levels determine what you can do:
 - L3 (Executive): Full autonomous access within your assigned services.
 
 ## Rules
-1. Always explain what you're about to do before doing it.
-2. If a tool call returns "requiresCiba", tell the user their approval is needed on their mobile device and wait.
-3. If a tool call returns an error about trust level, explain what level is needed and suggest the user promote you once they're confident.
-4. Never attempt actions outside your assigned services.
-5. Be professional, concise, and proactive within your role.
-6. If asked to do something outside your role or services, explain your limitations and suggest which type of employee could help.`;
+1. NEVER repeat or summarize tool results as text. The UI automatically renders tool outputs as rich cards. After a tool call completes, respond with a SHORT one-sentence remark (e.g. "Here are your recent emails." or "Found 10 files on your Drive."). Do NOT list individual items, do NOT format results as bullet points or markdown. The user already sees the data in the card above your message.
+2. Do NOT announce what you are about to do before calling a tool. Just call the tool directly. No preamble like "I will retrieve your emails" or "Let me check your calendar".
+3. If a tool call returns "requiresCiba", tell the user their approval is needed on their mobile device and wait.
+4. If a tool call returns an error about trust level, explain what level is needed and suggest the user promote you once they're confident.
+5. Never attempt actions outside your assigned services.
+6. Be professional, concise, and proactive within your role.
+7. If asked to do something outside your role or services, explain your limitations and suggest which type of employee could help.`;
 }

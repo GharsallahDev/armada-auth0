@@ -8,6 +8,7 @@ import {
   Pause, ArrowUpRight, Filter, Zap, Users, BarChart3,
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SERVICE_DISPLAY } from "@/lib/trust/levels";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -131,7 +132,7 @@ const statusConfig: Record<string, { icon: React.ComponentType<{ className?: str
 type FilterType = "all" | "running" | "completed" | "failed" | "waiting_approval";
 
 export default function TasksPage() {
-  const { data: agents } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 5000 });
+  const { data: agents, isLoading } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 5000 });
   const { data: logs } = useSWR<AuditLog[]>("/api/audit?limit=50", fetcher, { refreshInterval: 5000 });
   const { data: cibaRequests } = useSWR("/api/ciba", fetcher, { refreshInterval: 3000 });
   const [filter, setFilter] = useState<FilterType>("all");
@@ -173,6 +174,50 @@ export default function TasksPage() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8  space-y-6">
+        {isLoading ? (
+          <div className="space-y-6">
+            {/* Skeleton Stat Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border/30 bg-card/30 p-4 flex items-center gap-3">
+                  <Skeleton className="h-9 w-9 rounded-lg" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-8" />
+                    <Skeleton className="h-2.5 w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Skeleton Filter Tab Bar */}
+            <div className="flex items-center gap-1 rounded-2xl border border-border/50 bg-card/30 p-1.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-9 w-20 rounded-xl" />
+              ))}
+            </div>
+
+            {/* Skeleton Task List Items */}
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="rounded-xl border border-border/30 bg-card/30 px-5 py-4">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Skeleton className="h-4 w-48" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-3 w-12" />
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-4 w-16 rounded-md" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-7 w-24 rounded-lg shrink-0" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+        <>
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
@@ -321,6 +366,8 @@ export default function TasksPage() {
             </motion.div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   );

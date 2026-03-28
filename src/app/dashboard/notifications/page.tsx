@@ -8,6 +8,7 @@ import {
   TrendingUp, TrendingDown, Shield, Zap, UserPlus, Trash2,
   Clock, ArrowUpRight, Check, Filter,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -206,6 +207,22 @@ export default function NotificationsPage() {
 
         {/* Notification List */}
         <div className="space-y-2">
+          {logs === undefined && (
+            <>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-xl border border-border/30 bg-card/20 px-5 py-4">
+                  <div className="flex items-start gap-3">
+                    <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Skeleton className="h-3.5 w-32 rounded" />
+                      <Skeleton className="h-3 w-56 rounded" />
+                      <Skeleton className="h-2.5 w-16 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
           <AnimatePresence mode="popLayout">
             {filtered.map((notif, i) => {
               const config = typeConfig[notif.type] || typeConfig.info;

@@ -13,6 +13,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AUTH0_SOCIAL_CONNECTIONS,
   CATEGORY_LABELS,
@@ -102,8 +103,35 @@ export default function SettingsPage() {
 
   const getConnectUrl = (id: string) => {
     const connection = TOKEN_VAULT_CONNECTIONS[id];
-    if (connection) return `/api/services/connect?connection=${connection}`;
-    return null;
+    if (!connection) return null;
+
+    // Use Auth0 SDK's built-in connect endpoint for other providers
+    const DEFAULT_SCOPES: Record<string, string[]> = {
+      "google-oauth2": [
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.send",
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/calendar.events",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.file",
+        "https://www.googleapis.com/auth/documents",
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/contacts.readonly",
+        "https://www.googleapis.com/auth/tasks",
+      ],
+      discord: ["identify", "guilds", "guilds.members.read"],
+      "sign-in-with-slack": ["users:read", "channels:read", "channels:history", "chat:write"],
+      linkedin: ["openid", "profile", "email", "w_member_social"],
+      shopify: ["read_products", "read_orders"],
+      stripe: ["read_write"],
+    };
+
+    const scopes = DEFAULT_SCOPES[connection] || [];
+    const params = new URLSearchParams();
+    params.set("connection", connection);
+    params.set("returnTo", "/dashboard/settings?connected=" + id);
+    scopes.forEach((s) => params.append("scopes", s));
+    return `/auth/connect?${params.toString()}`;
   };
 
   const isAvailable = (id: string) => id in TOKEN_VAULT_CONNECTIONS;
@@ -259,8 +287,23 @@ export default function SettingsPage() {
                   />
                 </div>
 
+                {/* Skeleton loading state */}
+                {connectedServices === undefined && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-3">
+                    {[0, 1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center justify-between px-3.5 py-3 rounded-xl border border-border/30 bg-card/30">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="h-8 w-8 rounded-lg" />
+                          <Skeleton className="h-3 w-24 rounded" />
+                        </div>
+                        <Skeleton className="h-6 w-16 rounded-lg" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* Categories */}
-                {categories.map((cat) => {
+                {connectedServices !== undefined && categories.map((cat) => {
                   const connectionsInCat = filteredConnections.filter((c) => c.category === cat);
                   const isExpanded = expandedCategories.includes(cat) || search.length > 0;
                   const connectedCount = connectionsInCat.filter((c) => isConnected(c.id)).length;

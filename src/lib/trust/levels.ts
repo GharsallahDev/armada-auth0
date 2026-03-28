@@ -64,6 +64,9 @@ export const SERVICE_DISPLAY: Record<string, { label: string; icon: string }> = 
   gmail: { label: "Gmail", icon: "Mail" },
   calendar: { label: "Google Calendar", icon: "Calendar" },
   drive: { label: "Google Drive", icon: "HardDrive" },
+  sheets: { label: "Google Sheets", icon: "Table" },
+  contacts: { label: "Google Contacts", icon: "Users" },
+  tasks: { label: "Google Tasks", icon: "CheckSquare" },
   // Communication
   slack: { label: "Slack", icon: "Hash" },
   discord: { label: "Discord", icon: "MessageCircle" },

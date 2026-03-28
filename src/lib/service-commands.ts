@@ -50,6 +50,23 @@ export const SERVICE_COMMANDS: Record<string, ServiceCommand[]> = {
     { command: "/drive:search", label: "Search", description: "Search files by name or content", args: "<query>", service: "drive" },
     { command: "/drive:create", label: "Create Doc", description: "Create a new Google Doc/Sheet/Slide", args: "<type> <title>", service: "drive" },
   ],
+  sheets: [
+    { command: "/sheets:list", label: "List Sheets", description: "List recent Google Sheets spreadsheets", args: "[count]", service: "sheets" },
+    { command: "/sheets:read", label: "Read Sheet", description: "Read data from a spreadsheet", args: "<spreadsheet-id> [range]", service: "sheets" },
+    { command: "/sheets:create", label: "Create Sheet", description: "Create a new spreadsheet", args: "<title>", service: "sheets" },
+    { command: "/sheets:append", label: "Append Rows", description: "Append rows to a spreadsheet", args: "<spreadsheet-id> <data>", service: "sheets" },
+  ],
+  contacts: [
+    { command: "/contacts:list", label: "List Contacts", description: "List Google contacts", args: "[count]", service: "contacts" },
+    { command: "/contacts:search", label: "Search", description: "Search contacts by name or email", args: "<query>", service: "contacts" },
+    { command: "/contacts:get", label: "Get Contact", description: "Get full details for a contact", args: "<contact-id>", service: "contacts" },
+  ],
+  tasks: [
+    { command: "/tasks:list", label: "List Tasks", description: "List tasks from Google Tasks", args: "[list-id]", service: "tasks" },
+    { command: "/tasks:add", label: "Add Task", description: "Create a new task", args: "<title> [due-date]", service: "tasks" },
+    { command: "/tasks:done", label: "Complete Task", description: "Mark a task as completed", args: "<task-id>", service: "tasks" },
+    { command: "/tasks:lists", label: "Task Lists", description: "List all task lists", service: "tasks" },
+  ],
 
   // ── Communication ─────────────────────────────────────────
   slack: [

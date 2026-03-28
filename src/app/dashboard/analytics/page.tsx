@@ -7,6 +7,7 @@ import {
   ArrowUpRight, ArrowDownRight, Activity,
 } from "lucide-react";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TRUST_LEVEL_NAMES, type TrustLevel } from "@/lib/trust/levels";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -151,7 +152,7 @@ function DonutChart({ segments, size = 120 }: { segments: { value: number; color
 }
 
 export default function AnalyticsPage() {
-  const { data: agents } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 10000 });
+  const { data: agents, isLoading } = useSWR<Agent[]>("/api/agents", fetcher, { refreshInterval: 10000 });
   const { data: trustData } = useSWR<Record<string, TrustData>>("/api/trust", fetcher, { refreshInterval: 10000 });
   const { data: logs } = useSWR<AuditLog[]>("/api/audit?limit=200", fetcher, { refreshInterval: 10000 });
   const { data: cibaRequests } = useSWR("/api/ciba", fetcher, { refreshInterval: 10000 });
@@ -226,6 +227,46 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8  space-y-6">
+        {isLoading ? (
+          <div className="space-y-6">
+            {/* Skeleton KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-5">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-6 w-16 rounded" />
+                      <Skeleton className="h-3 w-24 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Skeleton Chart Areas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Skeleton className="h-[300px] w-full rounded-2xl" />
+              <Skeleton className="h-[300px] w-full rounded-2xl" />
+            </div>
+
+            {/* Skeleton Table Areas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 space-y-4">
+                  <Skeleton className="h-4 w-32 rounded" />
+                  <Skeleton className="h-3 w-48 rounded" />
+                  <div className="space-y-3 pt-2">
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <Skeleton key={j} className="h-10 w-full rounded-xl" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+        <>
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {kpiCards.map((stat, i) => (
@@ -450,6 +491,8 @@ export default function AnalyticsPage() {
             </div>
           </motion.div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

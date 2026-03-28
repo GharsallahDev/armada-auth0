@@ -8,4 +8,5 @@ export const auth0 = new Auth0Client({
       "openid profile email offline_access create:me:connected_accounts read:me:connected_accounts delete:me:connected_accounts",
     audience: `https://${domain}/me/`,
   },
+  enableConnectAccountEndpoint: true,
 });

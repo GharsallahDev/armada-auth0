@@ -6,6 +6,7 @@ import {
   Mail, Calendar, HardDrive, Hash, CreditCard, Github, MessageCircle,
 } from "lucide-react";
 import { TRUST_LEVEL_NAMES, SERVICE_DISPLAY, type TrustLevel } from "@/lib/trust/levels";
+import { resolveAvatarUrl } from "@/lib/avatar";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -25,6 +26,7 @@ interface Agent {
   role: string;
   services: string[];
   avatarGradient: string;
+  avatarUrl?: string | null;
   status: string;
 }
 
@@ -49,8 +51,8 @@ export function AgentCard({ agent, trust }: AgentCardProps) {
         <div className="relative space-y-4">
           {/* Header */}
           <div className="flex items-start gap-3">
-            <div className={`h-11 w-11 rounded-xl bg-gradient-to-br ${agent.avatarGradient} flex items-center justify-center text-sm font-bold text-white shadow-lg ring-1 ring-white/20`}>
-              {agent.name[0]}
+            <div className="h-11 w-11 rounded-xl bg-muted/30 flex items-center justify-center shadow-lg ring-1 ring-border/30 overflow-hidden">
+              <img src={resolveAvatarUrl(agent.avatarUrl, agent.slug)} alt={agent.name} className="h-full w-full object-cover" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-[14px] font-semibold text-foreground truncate">{agent.name}</h3>
@@ -80,16 +82,30 @@ export function AgentCard({ agent, trust }: AgentCardProps) {
 
           {/* Services */}
           <div className="flex flex-wrap gap-1.5">
-            {agent.services.map((s: string) => {
-              const display = SERVICE_DISPLAY[s];
-              const IconComp = display ? ICON_MAP[display.icon] : null;
-              return (
-                <span key={s} className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">
-                  {IconComp && <IconComp className="h-3 w-3" />}
-                  {display?.label || s}
-                </span>
-              );
-            })}
+            {(() => {
+              const GOOGLE_SERVICES = new Set(["gmail", "calendar", "drive", "sheets", "contacts", "tasks"]);
+              const hasGoogle = agent.services.some(s => GOOGLE_SERVICES.has(s));
+              const nonGoogle = agent.services.filter(s => !GOOGLE_SERVICES.has(s));
+              const badges = nonGoogle.map((s: string) => {
+                const display = SERVICE_DISPLAY[s];
+                const IconComp = display ? ICON_MAP[display.icon] : null;
+                return (
+                  <span key={s} className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">
+                    {IconComp && <IconComp className="h-3 w-3" />}
+                    {display?.label || s}
+                  </span>
+                );
+              });
+              if (hasGoogle) {
+                badges.unshift(
+                  <span key="google" className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md bg-muted/50 text-muted-foreground border border-border/30">
+                    <Mail className="h-3 w-3" />
+                    Google
+                  </span>
+                );
+              }
+              return badges;
+            })()}
           </div>
         </div>
       </div>

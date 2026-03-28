@@ -6,13 +6,12 @@ async function getToken() {
   return getGoogleAccessToken();
 }
 
-export async function listEvents(userId: string, maxResults = 10) {
+export async function listEvents(userId: string, maxResults = 10, timeMin?: string, timeMax?: string) {
   const token = await getToken();
-  const now = new Date().toISOString();
-  const data = await googleApi(
-    token,
-    `${CAL_BASE}/calendars/primary/events?maxResults=${maxResults}&timeMin=${encodeURIComponent(now)}&orderBy=startTime&singleEvents=true`
-  );
+  const min = timeMin || new Date().toISOString();
+  let url = `${CAL_BASE}/calendars/primary/events?maxResults=${maxResults}&timeMin=${encodeURIComponent(min)}&orderBy=startTime&singleEvents=true`;
+  if (timeMax) url += `&timeMax=${encodeURIComponent(timeMax)}`;
+  const data = await googleApi(token, url);
 
   return (data.items || []).map((event: {
     id: string;
